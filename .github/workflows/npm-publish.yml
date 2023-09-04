@@ -29,5 +29,7 @@ jobs:
         with:
           secrets: |-
             npm-token:nitraai/npm-token
+
       - name: publish
+        working-directory: npm
         run: npx @jsdevtools/npm-publish --token=${{ steps.secrets.outputs.npm-token }} --access=public
