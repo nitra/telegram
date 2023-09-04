@@ -4,6 +4,8 @@ import { env } from 'node:process'
 
 checkEnv(['TELEGRAM_BOT_TOKEN', 'TELEGRAM_CHAT_ID'])
 
+export const MAX_TELEGRAM_MSG_LENGTH = 4096
+
 export const sendMessage = async (text, params) => {
   const currentHour = new Date().getHours()
   if (currentHour >= 8 && currentHour <= 18) {
