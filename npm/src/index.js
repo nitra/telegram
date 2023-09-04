@@ -1,0 +1,33 @@
+import log from '@nitra/bunyan'
+import checkEnv from '@nitra/check-env'
+import { env } from 'node:process'
+
+checkEnv(['TELEGRAM_BOT_TOKEN', 'TELEGRAM_CHAT_ID'])
+
+export const sendMessage = async (text, params) => {
+  const currentHour = new Date().getHours()
+  if (currentHour >= 8 && currentHour <= 18) {
+    // Max length of a Telegram message is 4096 characters
+    if (text >= 4096) {
+      text = text.slice(0, 4000)
+    }
+
+    let url = `https://api.telegram.org/bot${env.TELEGRAM_BOT_TOKEN}/sendMessage?chat_id=${env.TELEGRAM_CHAT_ID}&text=${text}`
+
+    if (params.parse_mode.toLowerCase() === 'html') {
+      url += '&parse_mode=HTML'
+    }
+    let res
+    try {
+      res = await fetch(url)
+    } catch (err) {
+      log.error(err)
+      return false
+    }
+    if (res.status > 400) {
+      return false
+    }
+  } else {
+    log.info('Telegram message skipped, not in working hours: ', text)
+  }
+}

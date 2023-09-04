@@ -1,0 +1,23 @@
+{
+  "name": "demo",
+  "version": "1.0.0",
+  "main": "src/index.js",
+  "author": "<ai@nitra.ai>",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "env $(cat .env) node src/index.js",
+    "fix": "yarn dlx standard --fix && yarn dlx prettier --write ."
+  },
+  "dependencies": {
+    "@nitra/telegram": "workspace:^"
+  },
+  "eslintConfig": {
+    "extends": [
+      "@nitra/eslint-config/node"
+    ]
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
