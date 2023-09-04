@@ -10,8 +10,8 @@ export const sendMessage = async (text, params) => {
   const currentHour = new Date().getHours()
   if (currentHour >= 8 && currentHour <= 18) {
     // Max length of a Telegram message is 4096 characters
-    if (text >= 4096) {
-      text = text.slice(0, 4000)
+    if (text >= MAX_TELEGRAM_MSG_LENGTH) {
+      text = text.slice(0, MAX_TELEGRAM_MSG_LENGTH)
     }
 
     let url = `https://api.telegram.org/bot${env.TELEGRAM_BOT_TOKEN}/sendMessage?chat_id=${env.TELEGRAM_CHAT_ID}&text=${text}`
