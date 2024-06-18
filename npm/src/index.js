@@ -22,8 +22,8 @@ export const sendMessage = async (text, params) => {
     let res
     try {
       res = await fetch(url)
-    } catch (err) {
-      log.error(err)
+    } catch (error) {
+      log.error(error)
       return false
     }
     if (res.status > 400) {
