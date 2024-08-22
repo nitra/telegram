@@ -18,7 +18,7 @@ jobs:
   eslint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
@@ -38,4 +38,4 @@ jobs:
           YARN_CHECKSUM_BEHAVIOR: ignore
 
       - name: Eslint
-        run: yarn dlx eslint . --ext .js
+        run: yarn dlx eslint .
