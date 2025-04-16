@@ -1,5 +1,5 @@
-import log from '@nitra/bunyan'
-import checkEnv from '@nitra/check-env'
+import { checkEnv } from '@nitra/check-env'
+import { log } from '@nitra/pino'
 import { env } from 'node:process'
 
 checkEnv(['TELEGRAM_BOT_TOKEN', 'TELEGRAM_CHAT_ID'])

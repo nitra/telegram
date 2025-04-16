@@ -23,8 +23,8 @@
   "homepage": "https://github.com/nitra/telegram",
   "license": "MIT",
   "dependencies": {
-    "@nitra/bunyan": "^2.0.3",
-    "@nitra/check-env": "^3.2.0"
+    "@nitra/check-env": "^3.2.0",
+    "@nitra/pino": "^1.5.1"
   },
   "engines": {
     "node": ">=22.0.0"

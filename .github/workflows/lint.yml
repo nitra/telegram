@@ -37,5 +37,5 @@ jobs:
         env:
           YARN_CHECKSUM_BEHAVIOR: ignore
 
-      - name: Eslint
-        run: yarn dlx eslint .
+      - run: npx oxlint
+      - run: npx eslint .

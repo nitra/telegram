@@ -17,10 +17,10 @@
     "root": true
   },
   "devDependencies": {
-    "@nitra/cspell-dict": "^1.0.141",
-    "@nitra/eslint-config": "^2.1.1",
+    "@nitra/cspell-dict": "^1.0.159",
+    "@nitra/eslint-config": "^3.0.3",
     "@nitra/prettier-config": "^1.0.1"
   },
   "license": "MIT",
-  "packageManager": "yarn@4.4.0"
+  "packageManager": "yarn@4.9.1"
 }
