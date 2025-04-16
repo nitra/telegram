@@ -17,7 +17,7 @@
     "root": true
   },
   "devDependencies": {
-    "@nitra/cspell-dict": "^1.0.159",
+    "@nitra/cspell-dict": "^1.0.160",
     "@nitra/eslint-config": "^3.0.3",
     "@nitra/prettier-config": "^1.0.1"
   },

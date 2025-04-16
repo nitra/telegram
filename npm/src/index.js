@@ -28,7 +28,8 @@ export const sendMessage = async (text, params) => {
       log.error(error)
       return false
     }
-    if (res.status > 400) {
+    if (res.status >= 400) {
+      log.error('Telegram message skipped, not sent ', text)
       return false
     }
   } else {

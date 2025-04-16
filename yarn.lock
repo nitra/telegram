@@ -205,10 +205,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nitra/cspell-dict@npm:^1.0.159":
-  version: 1.0.159
-  resolution: "@nitra/cspell-dict@npm:1.0.159"
-  checksum: 10/3e2bb47e84bb3da6f40e342025e321cd21ca9338abda7fec9b1a463febe66d8e3d632a3882e71aa0d390af9e278ba1491e18028dce893ffc830eecf02f0130d8
+"@nitra/cspell-dict@npm:^1.0.160":
+  version: 1.0.160
+  resolution: "@nitra/cspell-dict@npm:1.0.160"
+  checksum: 10/d167cc5f7bc80fdd64a16f230717cf9abb2a1d02ccd873e8e718649d643295b8380a7bea63ab6ca49395823bd1d833cee3131d930e6303790da0245d0f5d999c
   languageName: node
   linkType: hard
 
@@ -249,9 +249,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nitra/pino@npm:^1.5.1":
-  version: 1.5.1
-  resolution: "@nitra/pino@npm:1.5.1"
+"@nitra/pino@npm:^1.6.0":
+  version: 1.6.0
+  resolution: "@nitra/pino@npm:1.6.0"
   dependencies:
     "@nitra/gcp-metadata": "npm:^1.4.3"
     "@nitra/isenv": "npm:^2.0.1"
@@ -261,7 +261,7 @@ __metadata:
     pino-opentelemetry-transport: "npm:^1.0.1"
     pino-pretty: "npm:^13.0.0"
     pretty-ms: "npm:^9.2.0"
-  checksum: 10/8c26d68ebbc3ecab5b6e7444abd4f887fe5d901674cf71b117ec5d7692cd08834f8623733f167b0211103af414e78a4ee5af00af3e656af3e89af023fc5680cf
+  checksum: 10/6f5b4f21cdd4ce30423b339988a979904ca9ad40b0196638920d5c81c4427cee1ac872aa0f48e259e25be1ba448598a3739dca91c8e357b708471074d34e8352
   languageName: node
   linkType: hard
 
@@ -277,7 +277,7 @@ __metadata:
   resolution: "@nitra/telegram@workspace:npm"
   dependencies:
     "@nitra/check-env": "npm:^3.2.0"
-    "@nitra/pino": "npm:^1.5.1"
+    "@nitra/pino": "npm:^1.6.0"
   languageName: unknown
   linkType: soft
 
@@ -2623,7 +2623,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "nitra-telegram@workspace:."
   dependencies:
-    "@nitra/cspell-dict": "npm:^1.0.159"
+    "@nitra/cspell-dict": "npm:^1.0.160"
     "@nitra/eslint-config": "npm:^3.0.3"
     "@nitra/prettier-config": "npm:^1.0.1"
   languageName: unknown
