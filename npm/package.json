@@ -1,7 +1,7 @@
 {
   "name": "@nitra/telegram",
   "description": "telegram helper",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "type": "module",
   "main": "src/index.js",
   "files": [

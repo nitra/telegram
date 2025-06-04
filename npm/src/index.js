@@ -22,7 +22,7 @@ export const sendMessage = async (text, params) => {
     url += '&parse_mode=HTML'
   }
 
-  if (!(currentHour >= 8 && currentHour <= 18)) {
+  if (!(currentHour >= 8 && currentHour <= 18) || params?.disable_notification === true) {
     url += '&disable_notification=true'
   }
   let res
