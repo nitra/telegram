@@ -249,9 +249,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nitra/pino@npm:^1.6.0":
-  version: 1.6.0
-  resolution: "@nitra/pino@npm:1.6.0"
+"@nitra/pino@npm:^1.6.2":
+  version: 1.6.2
+  resolution: "@nitra/pino@npm:1.6.2"
   dependencies:
     "@nitra/gcp-metadata": "npm:^1.4.3"
     "@nitra/isenv": "npm:^2.0.1"
@@ -261,7 +261,7 @@ __metadata:
     pino-opentelemetry-transport: "npm:^1.0.1"
     pino-pretty: "npm:^13.0.0"
     pretty-ms: "npm:^9.2.0"
-  checksum: 10/6f5b4f21cdd4ce30423b339988a979904ca9ad40b0196638920d5c81c4427cee1ac872aa0f48e259e25be1ba448598a3739dca91c8e357b708471074d34e8352
+  checksum: 10/beb42821f5b130bea1416416f1836f5b6fc4e6864089e414d5a9d9c9d3a3ed455caf36a2184d6ee2d0d88570087247b47627309185de71b52bda576a448f77a3
   languageName: node
   linkType: hard
 
@@ -277,7 +277,7 @@ __metadata:
   resolution: "@nitra/telegram@workspace:npm"
   dependencies:
     "@nitra/check-env": "npm:^3.2.0"
-    "@nitra/pino": "npm:^1.6.0"
+    "@nitra/pino": "npm:^1.6.2"
   languageName: unknown
   linkType: soft
 
