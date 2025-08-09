@@ -205,10 +205,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nitra/cspell-dict@npm:^1.0.160":
-  version: 1.0.160
-  resolution: "@nitra/cspell-dict@npm:1.0.160"
-  checksum: 10/d167cc5f7bc80fdd64a16f230717cf9abb2a1d02ccd873e8e718649d643295b8380a7bea63ab6ca49395823bd1d833cee3131d930e6303790da0245d0f5d999c
+"@nitra/cspell-dict@npm:^1.0.167":
+  version: 1.0.167
+  resolution: "@nitra/cspell-dict@npm:1.0.167"
+  checksum: 10/658321d669440ff9789eae39309e00bebd95350f4341927f1d38d631e3e16fa046eb500cbeb213cce18e8dcc68dcc2d7efc92f6b7acff3f14c5e26585c269108
   languageName: node
   linkType: hard
 
@@ -249,19 +249,20 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nitra/pino@npm:^1.6.2":
-  version: 1.6.2
-  resolution: "@nitra/pino@npm:1.6.2"
+"@nitra/pino@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "@nitra/pino@npm:2.0.0"
   dependencies:
     "@nitra/gcp-metadata": "npm:^1.4.3"
     "@nitra/isenv": "npm:^2.0.1"
+    colorette: "npm:^2.0.20"
     eventid: "npm:^2.0.1"
     fast-safe-stringify: "npm:^2.1.1"
-    pino: "npm:^9.6.0"
+    pino: "npm:^9.7.0"
     pino-opentelemetry-transport: "npm:^1.0.1"
-    pino-pretty: "npm:^13.0.0"
+    pino-pretty: "npm:^13.1.1"
     pretty-ms: "npm:^9.2.0"
-  checksum: 10/beb42821f5b130bea1416416f1836f5b6fc4e6864089e414d5a9d9c9d3a3ed455caf36a2184d6ee2d0d88570087247b47627309185de71b52bda576a448f77a3
+  checksum: 10/4e721c8318ae514c9a079cbf8278bbbabc9a57d54029f7d1f5a0975e85fce1966f77c5cf0cfa082aec8b46bb068cc07aad08ab9544e601b86b908f49d24decfb
   languageName: node
   linkType: hard
 
@@ -277,7 +278,7 @@ __metadata:
   resolution: "@nitra/telegram@workspace:npm"
   dependencies:
     "@nitra/check-env": "npm:^3.2.0"
-    "@nitra/pino": "npm:^1.6.2"
+    "@nitra/pino": "npm:^2.0.0"
   languageName: unknown
   linkType: soft
 
@@ -945,7 +946,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"colorette@npm:^2.0.7":
+"colorette@npm:^2.0.20, colorette@npm:^2.0.7":
   version: 2.0.20
   resolution: "colorette@npm:2.0.20"
   checksum: 10/0b8de48bfa5d10afc160b8eaa2b9938f34a892530b2f7d7897e0458d9535a066e3998b49da9d21161c78225b272df19ae3a64d6df28b4c9734c0e55bbd02406f
@@ -2623,7 +2624,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "nitra-telegram@workspace:."
   dependencies:
-    "@nitra/cspell-dict": "npm:^1.0.160"
+    "@nitra/cspell-dict": "npm:^1.0.167"
     "@nitra/eslint-config": "npm:^3.0.3"
     "@nitra/prettier-config": "npm:^1.0.1"
   languageName: unknown
@@ -2933,9 +2934,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"pino-pretty@npm:^13.0.0":
-  version: 13.0.0
-  resolution: "pino-pretty@npm:13.0.0"
+"pino-pretty@npm:^13.1.1":
+  version: 13.1.1
+  resolution: "pino-pretty@npm:13.1.1"
   dependencies:
     colorette: "npm:^2.0.7"
     dateformat: "npm:^4.6.3"
@@ -2947,12 +2948,12 @@ __metadata:
     on-exit-leak-free: "npm:^2.1.0"
     pino-abstract-transport: "npm:^2.0.0"
     pump: "npm:^3.0.0"
-    secure-json-parse: "npm:^2.4.0"
+    secure-json-parse: "npm:^4.0.0"
     sonic-boom: "npm:^4.0.1"
-    strip-json-comments: "npm:^3.1.1"
+    strip-json-comments: "npm:^5.0.2"
   bin:
     pino-pretty: bin.js
-  checksum: 10/9861fdbe88db000e3b0fe959f0fb7b5913e8d16af70373155d48854c5d509629e7e1ba09ed3fac24a9bd2729451567a698938b9741d84de63eb549843450e71c
+  checksum: 10/b03520c99907f675fbc7d6395f27f60456d06562f2c84040064b575c6dec6c517eef6c147a846d587a1395878796dc4d4ac027acac1eae5022dd59d69c15ad7f
   languageName: node
   linkType: hard
 
@@ -2963,16 +2964,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"pino@npm:^9.6.0":
-  version: 9.6.0
-  resolution: "pino@npm:9.6.0"
+"pino@npm:^9.7.0":
+  version: 9.8.0
+  resolution: "pino@npm:9.8.0"
   dependencies:
     atomic-sleep: "npm:^1.0.0"
     fast-redact: "npm:^3.1.1"
     on-exit-leak-free: "npm:^2.1.0"
     pino-abstract-transport: "npm:^2.0.0"
     pino-std-serializers: "npm:^7.0.0"
-    process-warning: "npm:^4.0.0"
+    process-warning: "npm:^5.0.0"
     quick-format-unescaped: "npm:^4.0.3"
     real-require: "npm:^0.2.0"
     safe-stable-stringify: "npm:^2.3.1"
@@ -2980,7 +2981,7 @@ __metadata:
     thread-stream: "npm:^3.0.0"
   bin:
     pino: bin.js
-  checksum: 10/0a36125718dc2350bbaff243e4856108a80805dc1b305da1e246460cd22396d11a8b3a78b39b0b270cce4fb8ae6aa6e584f5387f6c2ee47348aae5db49d919e6
+  checksum: 10/1b42d7d184e35dca16bbe4ff724e213b64125aca1574b3bc1aae4f7ecc911bd3dfda249fe7a28f0243956404fafff72d69a1fe252cf4ed6d714fd67138e1e5d3
   languageName: node
   linkType: hard
 
@@ -3024,10 +3025,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"process-warning@npm:^4.0.0":
-  version: 4.0.1
-  resolution: "process-warning@npm:4.0.1"
-  checksum: 10/8b0ec9129845215c1e4a72f3a66082e3aa76f81e265374de6c70f2213f4516856316ed88338b8520e9274dab947d6b3750684b448f45148f57757f365e96793f
+"process-warning@npm:^5.0.0":
+  version: 5.0.0
+  resolution: "process-warning@npm:5.0.0"
+  checksum: 10/10f3e00ac9fc1943ec4566ff41fff2b964e660f853c283e622257719839d340b4616e707d62a02d6aa0038761bb1fa7c56bc7308d602d51bd96f05f9cd305dcd
   languageName: node
   linkType: hard
 
@@ -3252,10 +3253,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"secure-json-parse@npm:^2.4.0":
-  version: 2.7.0
-  resolution: "secure-json-parse@npm:2.7.0"
-  checksum: 10/974386587060b6fc5b1ac06481b2f9dbbb0d63c860cc73dc7533f27835fdb67b0ef08762dbfef25625c15bc0a0c366899e00076cb0d556af06b71e22f1dede4c
+"secure-json-parse@npm:^4.0.0":
+  version: 4.0.0
+  resolution: "secure-json-parse@npm:4.0.0"
+  checksum: 10/c36c9dec9afaf4ef929a5469995d70d2f20d3d89b57219f22e0349b342715987283dbc1a80ab6f39e0bb28f8c3f3f073ce5363765c20c8d003ac243b4a89bd3d
   languageName: node
   linkType: hard
 
@@ -3532,6 +3533,13 @@ __metadata:
   version: 3.1.1
   resolution: "strip-json-comments@npm:3.1.1"
   checksum: 10/492f73e27268f9b1c122733f28ecb0e7e8d8a531a6662efbd08e22cccb3f9475e90a1b82cab06a392f6afae6d2de636f977e231296400d0ec5304ba70f166443
+  languageName: node
+  linkType: hard
+
+"strip-json-comments@npm:^5.0.2":
+  version: 5.0.3
+  resolution: "strip-json-comments@npm:5.0.3"
+  checksum: 10/3ccbf26f278220f785e4b71f8a719a6a063d72558cc63cb450924254af258a4f4c008b8c9b055373a680dc7bd525be9e543ad742c177f8a7667e0b726258e0e4
   languageName: node
   linkType: hard
 
