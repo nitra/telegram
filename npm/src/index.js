@@ -22,9 +22,11 @@ export const sendMessage = async (text, params) => {
     url += '&parse_mode=HTML'
   }
 
+  // Якщо в неробочий час або відключено сповіщення, то додаємо параметр disable_notification
   if (!(currentHour >= 8 && currentHour <= 18) || params?.disable_notification === true) {
     url += '&disable_notification=true'
   }
+
   let res
   try {
     res = await fetch(url)
@@ -32,11 +34,11 @@ export const sendMessage = async (text, params) => {
     log.error(error)
     return false
   }
+
   if (res.status >= 400) {
-    log.error('Telegram message skipped, not sent ', text)
+    const data = await res.json()
+
+    log.error(data.description, text)
     return false
   }
-  // } else {
-  //   log.info('Telegram message skipped, not in working hours: ', text)
-  // }
 }

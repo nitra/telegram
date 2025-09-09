@@ -198,17 +198,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nitra/check-env@npm:^3.2.0":
-  version: 3.2.0
-  resolution: "@nitra/check-env@npm:3.2.0"
-  checksum: 10/a3538f45a9840ce5c162c5817c62197b23fa527731cfc9af86a7f8bb560c969213dfe2624a02bb4b29f906b361d732ecabe60ae5641b43456cdfbc68d8f05b36
+"@nitra/check-env@npm:^4.0.0":
+  version: 4.0.0
+  resolution: "@nitra/check-env@npm:4.0.0"
+  dependencies:
+    "@nitra/pino": "npm:^2.3.0"
+  checksum: 10/e2ff5949978d6d53444b0fcc8fc963e5b31899124672ab2950ef849cf9a47f2894fd493a8c768f30ec4d5b42ff94a7e3e3b934e8ac8840add5ec68d0b2a1b8dc
   languageName: node
   linkType: hard
 
-"@nitra/cspell-dict@npm:^1.0.167":
-  version: 1.0.167
-  resolution: "@nitra/cspell-dict@npm:1.0.167"
-  checksum: 10/658321d669440ff9789eae39309e00bebd95350f4341927f1d38d631e3e16fa046eb500cbeb213cce18e8dcc68dcc2d7efc92f6b7acff3f14c5e26585c269108
+"@nitra/cspell-dict@npm:^1.0.173":
+  version: 1.0.173
+  resolution: "@nitra/cspell-dict@npm:1.0.173"
+  checksum: 10/dbad0e3f7d5ee1805149846bff6bad39e824d58459c3ea2d0cd421b89c1d34e98b9fd420cb98213138dd78578c02d87e0dcc8578857eefade401bc6a2bcfaca1
   languageName: node
   linkType: hard
 
@@ -249,9 +251,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nitra/pino@npm:^2.0.0":
-  version: 2.0.0
-  resolution: "@nitra/pino@npm:2.0.0"
+"@nitra/pino@npm:^2.3.0, @nitra/pino@npm:^2.4.0":
+  version: 2.4.0
+  resolution: "@nitra/pino@npm:2.4.0"
   dependencies:
     "@nitra/gcp-metadata": "npm:^1.4.3"
     "@nitra/isenv": "npm:^2.0.1"
@@ -262,7 +264,7 @@ __metadata:
     pino-opentelemetry-transport: "npm:^1.0.1"
     pino-pretty: "npm:^13.1.1"
     pretty-ms: "npm:^9.2.0"
-  checksum: 10/4e721c8318ae514c9a079cbf8278bbbabc9a57d54029f7d1f5a0975e85fce1966f77c5cf0cfa082aec8b46bb068cc07aad08ab9544e601b86b908f49d24decfb
+  checksum: 10/fa62a5b999b8d3ef1fd22e00150b7227cdb0e9e65d6b0ba8ad4ef932dbd388bc9e01450acd8bae7ed86a97ad8b5e91f36bacb00f6cdaffff48b73749f82a206d
   languageName: node
   linkType: hard
 
@@ -277,8 +279,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@nitra/telegram@workspace:npm"
   dependencies:
-    "@nitra/check-env": "npm:^3.2.0"
-    "@nitra/pino": "npm:^2.0.0"
+    "@nitra/check-env": "npm:^4.0.0"
+    "@nitra/pino": "npm:^2.4.0"
   languageName: unknown
   linkType: soft
 
@@ -2624,7 +2626,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "nitra-telegram@workspace:."
   dependencies:
-    "@nitra/cspell-dict": "npm:^1.0.167"
+    "@nitra/cspell-dict": "npm:^1.0.173"
     "@nitra/eslint-config": "npm:^3.0.3"
     "@nitra/prettier-config": "npm:^1.0.1"
   languageName: unknown

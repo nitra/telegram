@@ -11,4 +11,4 @@ node_modules/
 !.yarn/versions
 .pnp.*
 
-.env.secret
+*.secret
