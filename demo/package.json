@@ -7,7 +7,7 @@
   "type": "module",
   "scripts": {
     "start": "env $(cat .env .env.secret) node src/index.js",
-    "fix": "yarn dlx standard --fix && yarn dlx prettier --write ."
+    "fix": "bunx standard --fix && bunx prettier --write ."
   },
   "dependencies": {
     "@nitra/telegram": "workspace:^"

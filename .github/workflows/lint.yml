@@ -20,22 +20,22 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Get yarn cache directory path
-        id: yarn-cache-dir-path
-        run: echo "::set-output name=dir::$(yarn config get cacheFolder)"
+      - uses: oven-sh/setup-bun@v2
 
-      - uses: actions/cache@v4
-        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+      - name: Cache Bun dependencies
+        uses: actions/cache@v4
         with:
-          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          path: |
+            ~/.bun/install/cache
+            node_modules
+          key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lock') }}
           restore-keys: |
-            ${{ runner.os }}-yarn-
+            ${{ runner.os }}-bun-
 
-      - name: Install Dependencies
-        run: yarn install
-        env:
-          YARN_CHECKSUM_BEHAVIOR: ignore
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
 
-      - run: npx oxlint
-      - run: npx eslint .
+      - name: Eslint
+        run: |
+          bunx oxlint
+          bunx eslint .

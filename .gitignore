@@ -3,12 +3,4 @@ node_modules/
 # local .env* files
 .env.*.local
 
-.yarn/*
-!.yarn/patches
-!.yarn/releases
-!.yarn/plugins
-!.yarn/sdks
-!.yarn/versions
-.pnp.*
-
 *.secret
