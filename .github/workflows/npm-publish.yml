@@ -2,34 +2,32 @@ name: npm-publish
 
 on:
   push:
+    paths:
+      - 'npm/**'
     branches:
       - main
 
+concurrency:
+  group: ${{ github.ref }}-${{ github.workflow }}
+  cancel-in-progress: true
+
 jobs:
-  publish-npm:
+  publish:
     runs-on: ubuntu-latest
-
-    # Add "id-token" with the intended permissions.
     permissions:
-      contents: 'read'
-      id-token: 'write'
-
+      contents: read
+      id-token: write # КРИТИЧНО для OIDC!
+      
     steps:
       - uses: actions/checkout@v4
 
-      - id: 'auth'
-        name: 'Authenticate to Google Cloud'
-        uses: 'google-github-actions/auth@v0'
+      - uses: actions/setup-node@v5
         with:
-          workload_identity_provider: 'projects/753698311885/locations/global/workloadIdentityPools/github-pool/providers/github-provider'
-          service_account: 'github-service-account@nitraai.iam.gserviceaccount.com'
+          node-version: "24"  # includes npm@11.6.0
+          registry-url: https://registry.npmjs.org
 
-      - id: secrets
-        uses: google-github-actions/get-secretmanager-secrets@main
+      - name: Publish package
+        uses: JS-DevTools/npm-publish@v4
         with:
-          secrets: |-
-            npm-token:nitraai/npm-token
+          package: npm/package.json
 
-      - name: publish
-        working-directory: npm
-        run: npx @jsdevtools/npm-publish --token=${{ steps.secrets.outputs.npm-token }} --access=public

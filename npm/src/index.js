@@ -10,7 +10,7 @@ export const sendMessage = async (text, params) => {
   const currentHour = new Date().getHours()
   // if (process.env.TELEGRAM_ROUND_CLOCK || (currentHour >= 8 && currentHour <= 18)) {
   // Max length of a Telegram message is 4096 characters
-  if (text >= MAX_TELEGRAM_MSG_LENGTH) {
+  if (text.length >= MAX_TELEGRAM_MSG_LENGTH) {
     text = text.slice(0, MAX_TELEGRAM_MSG_LENGTH)
   }
 
