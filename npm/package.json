@@ -1,15 +1,14 @@
 {
   "name": "@nitra/telegram",
   "description": "telegram helper",
-  "version": "1.5.3",
+  "version": "1.5.4",
   "type": "module",
   "main": "src/index.js",
   "files": [
     "src"
   ],
   "exports": {
-    ".": "./src/index.js",
-    "./pubsub": "./src/pubsub.js"
+    ".": "./src/index.js"
   },
   "keywords": [
     "nitra",
