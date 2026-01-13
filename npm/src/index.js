@@ -42,3 +42,47 @@ export const sendMessage = async (text, params) => {
     return false
   }
 }
+
+export const sendDocument = async (document, params = {}) => {
+  const currentHour = new Date().getHours()
+
+  const formData = new FormData()
+  formData.append('chat_id', env.TELEGRAM_CHAT_ID)
+
+  // Додаємо документ як Blob з параметрами
+  const blob = new Blob([document], { type: params.contentType || 'application/octet-stream' })
+  formData.append('document', blob, params.filename || 'document.txt')
+
+  // Додаємо опціональні параметри
+  if (params.caption) {
+    formData.append('caption', params.caption)
+  }
+
+  if (params.parse_mode) {
+    formData.append('parse_mode', params.parse_mode)
+  }
+
+  // Якщо в неробочий час або відключено сповіщення, то додаємо параметр disable_notification
+  if (!(currentHour >= 8 && currentHour <= 18) || params?.disable_notification === true) {
+    formData.append('disable_notification', 'true')
+  }
+
+  const url = `https://api.telegram.org/bot${env.TELEGRAM_BOT_TOKEN}/sendDocument`
+
+  let res
+  try {
+    res = await fetch(url, {
+      method: 'POST',
+      body: formData
+    })
+  } catch (error) {
+    log.error(error)
+    return false
+  }
+
+  if (res.status >= 400) {
+    const data = await res.json()
+    log.error(data.description)
+    return false
+  }
+}
