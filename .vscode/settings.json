@@ -1,0 +1,4 @@
+{
+  "oxc.path.oxlint": "/opt/homebrew/bin/oxlint",
+  "oxc.path.oxfmt": "/opt/homebrew/bin/oxfmt"
+}

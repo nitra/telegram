@@ -1,10 +1,10 @@
 {
   "name": "demo",
   "version": "1.0.0",
-  "main": "src/index.js",
-  "author": "<ai@nitra.ai>",
   "private": true,
+  "author": "<ai@nitra.ai>",
   "type": "module",
+  "main": "src/index.js",
   "scripts": {
     "start": "env $(cat .env .env.secret) node src/index.js",
     "fix": "bunx standard --fix && bunx prettier --write ."

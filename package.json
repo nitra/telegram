@@ -1,25 +1,25 @@
 {
   "name": "nitra-telegram",
-  "description": "telegram helper",
   "version": "1.0.0",
-  "type": "module",
+  "description": "telegram helper",
+  "homepage": "https://github.com/nitra/telegram",
+  "bugs": "https://github.com/nitra/telegram/issues",
+  "license": "MIT",
   "workspaces": [
     "demo",
     "npm"
   ],
-  "bugs": "https://github.com/nitra/telegram/issues",
-  "homepage": "https://github.com/nitra/telegram",
+  "type": "module",
+  "devDependencies": {
+    "@nitra/cspell-dict": "^1.0.179",
+    "@nitra/eslint-config": "^3.0.11",
+    "@nitra/prettier-config": "^1.0.1"
+  },
   "prettier": "@nitra/prettier-config",
   "eslintConfig": {
     "extends": [
       "@nitra"
     ],
     "root": true
-  },
-  "devDependencies": {
-    "@nitra/cspell-dict": "^1.0.179",
-    "@nitra/eslint-config": "^3.0.11",
-    "@nitra/prettier-config": "^1.0.1"
-  },
-  "license": "MIT"
+  }
 }

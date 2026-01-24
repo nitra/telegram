@@ -13,16 +13,11 @@ const testData = [
 ]
 
 const csvHeader = 'Name,Email,Department,Position'
-const csvRows = testData.map(row => 
-  `${row.name},${row.email},${row.department},${row.position}`
-)
+const csvRows = testData.map(row => `${row.name},${row.email},${row.department},${row.position}`)
 const csvContent = [csvHeader, ...csvRows].join('\r\n')
 
-sendDocument(
-  Buffer.from(csvContent),
-  {
-    caption: `Test sending CSV: ${testData.length} users`,
-    contentType: 'text/csv',
-    filename: 'users_report.csv'
-  }
-)
+sendDocument(Buffer.from(csvContent), {
+  caption: `Test sending CSV: ${testData.length} users`,
+  contentType: 'text/csv',
+  filename: 'users_report.csv'
+})

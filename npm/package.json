@@ -1,26 +1,26 @@
 {
   "name": "@nitra/telegram",
-  "description": "telegram helper",
   "version": "1.6.0",
-  "type": "module",
-  "main": "src/index.js",
-  "files": [
-    "src"
-  ],
-  "exports": {
-    ".": "./src/index.js"
-  },
+  "description": "telegram helper",
   "keywords": [
     "nitra",
     "telegram"
   ],
+  "homepage": "https://github.com/nitra/telegram",
+  "bugs": "https://github.com/nitra/telegram/issues",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/nitra/telegram.git"
   },
-  "bugs": "https://github.com/nitra/telegram/issues",
-  "homepage": "https://github.com/nitra/telegram",
-  "license": "MIT",
+  "files": [
+    "src"
+  ],
+  "type": "module",
+  "main": "src/index.js",
+  "exports": {
+    ".": "./src/index.js"
+  },
   "dependencies": {
     "@nitra/check-env": "^4.1.0",
     "@nitra/pino": "^2.8.1"
