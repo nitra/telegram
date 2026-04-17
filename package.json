@@ -11,7 +11,8 @@
   ],
   "type": "module",
   "devDependencies": {
-    "@nitra/cspell-dict": "^1.0.179",
+    "@cspell/dict-uk-ua": "^4.0.6",
+    "@nitra/cspell-dict": "^1.0.186",
     "@nitra/eslint-config": "^3.0.11",
     "@nitra/prettier-config": "^1.0.1"
   },
