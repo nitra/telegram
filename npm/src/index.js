@@ -14,11 +14,19 @@ export const sendMessage = async (text, params) => {
     text = text.slice(0, MAX_TELEGRAM_MSG_LENGTH)
   }
 
+  const useHtml = params?.parse_mode?.toLowerCase() === 'html'
+
+  // Telegram HTML не підтримує <br> (і його варіанти </br>, <br/>) — конвертуємо
+  // у звичайний перенос рядка, інакше парсер падає з "can't parse entities".
+  if (useHtml) {
+    text = text.replaceAll(/<\/?br\s*\/?>/gi, '\n')
+  }
+
   let url = `https://api.telegram.org/bot${env.TELEGRAM_BOT_TOKEN}/sendMessage?chat_id=${
     env.TELEGRAM_CHAT_ID
   }&text=${encodeURIComponent(text)}`
 
-  if (params?.parse_mode?.toLowerCase() === 'html') {
+  if (useHtml) {
     url += '&parse_mode=HTML'
   }
 
@@ -37,6 +45,13 @@ export const sendMessage = async (text, params) => {
 
   if (res.status >= 400) {
     const data = await res.json()
+
+    // Якщо HTML-парсер усе ж не впорався з довільним текстом — повторюємо один раз
+    // як plain text (без parse_mode), щоб повідомлення гарантовано дійшло й не
+    // плодило каскад помилок. Повтор без HTML вже не дасть "can't parse entities".
+    if (useHtml && /can't parse entities/i.test(data.description ?? '')) {
+      return sendMessage(text, { ...params, parse_mode: undefined })
+    }
 
     log.error(data.description, text)
     return false
