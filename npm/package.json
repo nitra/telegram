@@ -14,7 +14,7 @@
     "url": "https://github.com/nitra/telegram.git"
   },
   "files": [
-    "src"
+    "src/index.js"
   ],
   "type": "module",
   "main": "src/index.js",

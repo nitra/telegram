@@ -13,8 +13,7 @@ export const DEFAULT_PARSE_MODE = 'MarkdownV2'
 // Екранує спецсимволи MarkdownV2. Застосовувати до ДИНАМІЧНОГО контенту (тексти
 // помилок, змінні) — інакше Telegram падає з "can't parse entities". Навмисно не
 // застосовується авто до всього тексту, бо це знищило б навмисну розмітку.
-export const escapeMarkdownV2 = text =>
-  String(text).replaceAll(/[_*[\]()~`>#+\-=|{}.!\\]/g, String.raw`\$&`)
+export const escapeMarkdownV2 = text => String(text).replaceAll(/[_*[\]()~`>#+\-=|{}.!\\]/g, String.raw`\$&`)
 
 // Дефолт — MarkdownV2; явні '' / null / undefined → без розмітки (plain text).
 const resolveParseMode = params => {
@@ -79,6 +78,7 @@ export const sendMessage = async (text, params) => {
 
 export const sendDocument = async (document, params = {}) => {
   const currentHour = new Date().getHours()
+  const parseMode = resolveParseMode(params)
 
   const formData = new FormData()
   formData.append('chat_id', env.TELEGRAM_CHAT_ID)
@@ -87,13 +87,13 @@ export const sendDocument = async (document, params = {}) => {
   const blob = new Blob([document], { type: params.contentType || 'application/octet-stream' })
   formData.append('document', blob, params.filename || 'document.txt')
 
-  // Додаємо опціональні параметри
+  // Додаємо опціональні параметри. parse_mode стосується лише caption,
+  // тож додаємо його тільки коли є підпис.
   if (params.caption) {
     formData.append('caption', params.caption)
-  }
-
-  if (params.parse_mode) {
-    formData.append('parse_mode', params.parse_mode)
+    if (parseMode) {
+      formData.append('parse_mode', parseMode)
+    }
   }
 
   // Якщо в неробочий час або відключено сповіщення, то додаємо параметр disable_notification
@@ -116,6 +116,13 @@ export const sendDocument = async (document, params = {}) => {
 
   if (res.status >= 400) {
     const data = await res.json()
+
+    // Як і в sendMessage — невалідна розмітка caption не має блокувати відправку
+    // документа: повторюємо один раз без parse_mode.
+    if (parseMode && params.caption && /can't parse entities/i.test(data.description ?? '')) {
+      return sendDocument(document, { ...params, parse_mode: '' })
+    }
+
     log.error(data.description)
     return false
   }
