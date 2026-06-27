@@ -6,19 +6,38 @@ checkEnv(['TELEGRAM_BOT_TOKEN', 'TELEGRAM_CHAT_ID'])
 
 export const MAX_TELEGRAM_MSG_LENGTH = 4096
 
+// Дефолтний формат повідомлень. Викликач може перевизначити через params.parse_mode
+// ('HTML' | 'Markdown' | 'MarkdownV2'), або вимкнути розмітку ('' / null).
+export const DEFAULT_PARSE_MODE = 'MarkdownV2'
+
+// Екранує спецсимволи MarkdownV2. Застосовувати до ДИНАМІЧНОГО контенту (тексти
+// помилок, змінні) — інакше Telegram падає з "can't parse entities". Навмисно не
+// застосовується авто до всього тексту, бо це знищило б навмисну розмітку.
+export const escapeMarkdownV2 = text =>
+  String(text).replaceAll(/[_*[\]()~`>#+\-=|{}.!\\]/g, String.raw`\$&`)
+
+// Дефолт — MarkdownV2; явні '' / null / undefined → без розмітки (plain text).
+const resolveParseMode = params => {
+  const raw = params && 'parse_mode' in params ? params.parse_mode : DEFAULT_PARSE_MODE
+  if (!raw) {
+    return ''
+  }
+  const known = { html: 'HTML', markdown: 'Markdown', markdownv2: 'MarkdownV2' }
+  return known[String(raw).toLowerCase()] ?? raw
+}
+
 export const sendMessage = async (text, params) => {
   const currentHour = new Date().getHours()
-  // if (process.env.TELEGRAM_ROUND_CLOCK || (currentHour >= 8 && currentHour <= 18)) {
   // Max length of a Telegram message is 4096 characters
   if (text.length >= MAX_TELEGRAM_MSG_LENGTH) {
     text = text.slice(0, MAX_TELEGRAM_MSG_LENGTH)
   }
 
-  const useHtml = params?.parse_mode?.toLowerCase() === 'html'
+  const parseMode = resolveParseMode(params)
 
   // Telegram HTML не підтримує <br> (і його варіанти </br>, <br/>) — конвертуємо
   // у звичайний перенос рядка, інакше парсер падає з "can't parse entities".
-  if (useHtml) {
+  if (parseMode === 'HTML') {
     text = text.replaceAll(/<\/?br\s*\/?>/gi, '\n')
   }
 
@@ -26,8 +45,8 @@ export const sendMessage = async (text, params) => {
     env.TELEGRAM_CHAT_ID
   }&text=${encodeURIComponent(text)}`
 
-  if (useHtml) {
-    url += '&parse_mode=HTML'
+  if (parseMode) {
+    url += `&parse_mode=${parseMode}`
   }
 
   // Якщо в неробочий час або відключено сповіщення, то додаємо параметр disable_notification
@@ -46,11 +65,11 @@ export const sendMessage = async (text, params) => {
   if (res.status >= 400) {
     const data = await res.json()
 
-    // Якщо HTML-парсер усе ж не впорався з довільним текстом — повторюємо один раз
+    // Якщо парсер розмітки не впорався з довільним текстом — повторюємо один раз
     // як plain text (без parse_mode), щоб повідомлення гарантовано дійшло й не
-    // плодило каскад помилок. Повтор без HTML вже не дасть "can't parse entities".
-    if (useHtml && /can't parse entities/i.test(data.description ?? '')) {
-      return sendMessage(text, { ...params, parse_mode: undefined })
+    // плодило каскад помилок. Повтор без розмітки вже не дасть "can't parse entities".
+    if (parseMode && /can't parse entities/i.test(data.description ?? '')) {
+      return sendMessage(text, { ...params, parse_mode: '' })
     }
 
     log.error(data.description, text)
