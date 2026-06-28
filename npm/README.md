@@ -12,10 +12,11 @@ bun add @nitra/telegram
 
 Потрібні змінні середовища (перевіряються при імпорті через `@nitra/check-env`):
 
-| Змінна               | Опис                         |
-| -------------------- | ---------------------------- |
-| `TELEGRAM_BOT_TOKEN` | токен бота                   |
-| `TELEGRAM_CHAT_ID`   | id чату/каналу для відправки |
+| Змінна               | Опис                                              |
+| -------------------- | ------------------------------------------------- |
+| `TELEGRAM_BOT_TOKEN` | токен бота                                        |
+| `TELEGRAM_CHAT_ID`   | id чату/каналу для відправки                      |
+| `TELEGRAM_THREAD_ID` | id топіка в супергрупі (опційно, дефолтний топік) |
 
 ## Формат за замовчуванням
 
@@ -48,14 +49,18 @@ await sendMessage('будь-який текст', { parse_mode: '' })
 
 // без звуку
 await sendMessage('тихо', { disable_notification: true })
+
+// у топік супергрупи
+await sendMessage('повідомлення в топік', { message_thread_id: 123 })
 ```
 
 `params`:
 
-| Поле                   | Тип                                          | За замовчуванням | Опис                                    |
-| ---------------------- | -------------------------------------------- | ---------------- | --------------------------------------- |
-| `parse_mode`           | `'MarkdownV2' \| 'Markdown' \| 'HTML' \| ''` | `'MarkdownV2'`   | формат розмітки; `''`/`null` — вимкнути |
-| `disable_notification` | `boolean`                                    | —                | надіслати без звуку                     |
+| Поле                   | Тип                              | За замовчуванням | Опис                                    |
+| ---------------------- | -------------------------------- | ---------------- | --------------------------------------- |
+| `parse_mode`           | `'MarkdownV2' \| 'HTML' \| ''`  | `'MarkdownV2'`   | формат розмітки; `''`/`null` — вимкнути |
+| `message_thread_id`    | `number`                         | `TELEGRAM_THREAD_ID` | id топіка; override для env змінної |
+| `disable_notification` | `boolean`                        | —                | надіслати без звуку                     |
 
 > У робочі години (08:00–18:00) сповіщення зі звуком; поза ними — автоматично тихо.
 > Повідомлення довші за 4096 символів обрізаються.
@@ -68,11 +73,18 @@ await sendDocument(Buffer.from(csv), {
   contentType: 'text/csv',
   caption: `*Звіт:* ${escapeMarkdownV2('users_2026.csv')}`
 })
+
+// у топік супергрупи
+await sendDocument(Buffer.from(csv), {
+  filename: 'report.csv',
+  contentType: 'text/csv',
+  message_thread_id: 123
+})
 ```
 
 `params`: `filename`, `contentType`, `caption`, `parse_mode` (дефолт MarkdownV2, лише
-для `caption`), `disable_notification`. Як і в `sendMessage`, невалідна розмітка caption
-не блокує відправку — повтор без розмітки.
+для `caption`), `message_thread_id`, `disable_notification`. Як і в `sendMessage`,
+невалідна розмітка caption не блокує відправку — повтор без розмітки.
 
 ### `escapeMarkdownV2(text)`
 

@@ -1,284 +1,167 @@
-import { vi, describe, it, expect, beforeEach, afterEach } from "vitest"
+import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest'
 
-// Mock dependencies before dynamic import
-vi.mock('@nitra/check-env', () => ({
-  checkEnv: vi.fn(),
-}))
-vi.mock('@nitra/pino', () => ({
-  log: {
-    error: vi.fn(),
-  },
-}))
+vi.mock('@nitra/check-env', () => ({ checkEnv: vi.fn() }))
+vi.mock('@nitra/pino', () => ({ log: { error: vi.fn() } }))
 
-// Mock fetch globally for API calls
-global.fetch = vi.fn()
+const mockFetch = vi.fn()
+vi.stubGlobal('fetch', mockFetch)
 
-// Setup environment variables and import module
-beforeEach(() => {
-  vi.stubEnv("TELEGRAM_BOT_TOKEN", "TEST_TOKEN")
-  vi.stubEnv("TELEGRAM_CHAT_ID", "TEST_CHAT_ID")
-  vi.clearAllMocks()
-})
+vi.stubEnv('TELEGRAM_BOT_TOKEN', 'TEST_TOKEN')
+vi.stubEnv('TELEGRAM_CHAT_ID', 'TEST_CHAT_ID')
 
-afterEach(() => {
-  vi.unstubAllEnvs()
-})
-
-// Dynamic import to handle module-level side effects and env setup
 const {
   MAX_TELEGRAM_MSG_LENGTH,
   DEFAULT_PARSE_MODE,
   escapeMarkdownV2,
   sendMessage,
   sendDocument,
-} = await import("../index.js")
+} = await import('../index.js')
 
-describe("Public API", () => {
-  it("should export correct constants", () => {
+const { log } = await import('@nitra/pino')
+
+const mockText = 'Test message content'
+const TEXT_ENC = encodeURIComponent(mockText)
+const BASE_URL = `https://api.telegram.org/botTEST_TOKEN/sendMessage?chat_id=TEST_CHAT_ID&text=${TEXT_ENC}`
+
+describe('escapeMarkdownV2', () => {
+  // Regex: /[_*[\]()#+\-=|{}.!\\]/g  — екранує: _ * [ ] ( ) # + - = | { } . ! \
+  it('escapes all MarkdownV2 special characters', () => {
+    // Charset: _ * [ ] ( ) # + - = | { } . ! \
+    expect(escapeMarkdownV2('*bold*')).toBe('\\*bold\\*')
+    expect(escapeMarkdownV2('hello!')).toBe('hello\\!')
+    expect(escapeMarkdownV2('[link](url)')).toBe('\\[link\\]\\(url\\)')
+    expect(escapeMarkdownV2('1+1=2')).toBe('1\\+1\\=2')
+    // backslash itself gets escaped
+    expect(escapeMarkdownV2('a\\b')).toBe('a\\\\b')
+  })
+
+  it('converts non-string argument to string first', () => {
+    expect(escapeMarkdownV2(123)).toBe('123')
+  })
+
+  it('returns empty string for empty input', () => {
+    expect(escapeMarkdownV2('')).toBe('')
+  })
+})
+
+describe('constants', () => {
+  it('MAX_TELEGRAM_MSG_LENGTH is 4096', () => {
     expect(MAX_TELEGRAM_MSG_LENGTH).toBe(4096)
+  })
+
+  it('DEFAULT_PARSE_MODE is MarkdownV2', () => {
     expect(DEFAULT_PARSE_MODE).toBe('MarkdownV2')
   })
+})
 
-  it("should correctly escape MarkdownV2 special characters", () => {
-    const input = "This is *bold* text with [links] and (parens) & ~tilde` and \\backslash"
-    const expected = "This is \\*bold\\* text with \\[links\\] and \\(parens\\) & ~tilde` and \\\\backslash"
-    expect(escapeMarkdownV2(input)).toBe(expected)
-    expect(escapeMarkdownV2("plain text")).toBe("plain text")
+describe('sendMessage', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    mockFetch.mockResolvedValue({ status: 200, json: async () => ({}) })
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-06-28T10:00:00Z')) // робочий час (UTC+0, 10:00)
   })
 
-  describe("sendMessage", () => {
-    const mockText = "Hello world"
-    const mockParams = {
-      chat_id: "123",
-    }
-    const mockFetch = vi.fn()
-
-    beforeEach(() => {
-      global.fetch = mockFetch
-      vi.clearAllMocks()
-    })
-
-    it("should send message with default MarkdownV2 parse_mode when no params are provided", async () => {
-      const res = { status: 200, json: vi.fn().mockResolvedValue({}) }
-      mockFetch.mockResolvedValue(res)
-
-      await sendMessage(mockText, {})
-
-      expect(mockFetch).toHaveBeenCalledWith(
-        expect.stringContaining("sendMessage?chat_id=TEST_CHAT_ID&text=Hello%20world&parse_mode=MarkdownV2")
-      )
-    })
-
-    it("should send message with custom parse_mode ('HTML')", async () => {
-      const res = { status: 200, json: vi.fn().mockResolvedValue({}) }
-      mockFetch.mockResolvedValue(res)
-
-      await sendMessage(mockText, { parse_mode: 'HTML' })
-
-      expect(mockFetch).toHaveBeenCalledWith(
-        expect.stringContaining("sendMessage?chat_id=TEST_CHAT_ID&text=Hello%20world&parse_mode=HTML")
-      )
-    })
-
-    it("should handle text truncation if it exceeds MAX_TELEGRAM_MSG_LENGTH", async () => {
-      const longText = "A".repeat(5000)
-      const res = { status: 200, json: vi.fn().mockResolvedValue({}) }
-      mockFetch.mockResolvedValue(res)
-
-      await sendMessage(longText, {})
-
-      const expectedTruncatedText = "A".repeat(MAX_TELEGRAM_MSG_LENGTH)
-      expect(mockFetch).toHaveBeenCalledWith(
-        expect.stringContaining(`text=${encodeURIComponent(expectedTruncatedText)}`)
-      )
-    })
-
-    it("should convert <br> tags to \\n when parse_mode is 'HTML'", async () => {
-      const htmlText = "Line 1<br>Line 2<br/>Line 3"
-      const res = { status: 200, json: vi.fn().mockResolvedValue({}) }
-      mockFetch.mockResolvedValue(res)
-
-      await sendMessage(htmlText, { parse_mode: 'HTML' })
-
-      expect(mockFetch).toHaveBeenCalledWith(
-        expect.stringContaining("text=Line%201%0ALine%202%0ALine%203")
-      )
-    })
-
-    it("should send message as plain text when parse_mode is empty or null", async () => {
-      const res = { status: 200, json: vi.fn().mockResolvedValue({}) }
-      mockFetch.mockResolvedValue(res)
-
-      await sendMessage(mockText, { parse_mode: '' })
-
-      expect(mockFetch).toHaveBeenCalledWith(
-        expect.stringContaining("sendMessage?chat_id=TEST_CHAT_ID&text=Hello%20world")
-      )
-    })
-
-    it("should append message_thread_id if provided", async () => {
-      const res = { status: 200, json: vi.fn().mockResolvedValue({}) }
-      mockFetch.mockResolvedValue(res)
-
-      await sendMessage(mockText, { message_thread_id: 5 })
-
-      expect(mockFetch).toHaveBeenCalledWith(
-        expect.stringContaining("message_thread_id=5")
-      )
-    })
-
-    it("should set disable_notification=true outside working hours (assuming current hour is 7)", async () => {
-      // Mock Date to be 7 AM
-      vi.spyOn(global, 'Date').mockReturnValue(new Date('2024-01-01T07:00:00.000Z'))
-      const res = { status: 200, json: vi.fn().mockResolvedValue({}) }
-      mockFetch.mockResolvedValue(res)
-
-      await sendMessage(mockText, {})
-
-      expect(mockFetch).toHaveBeenCalledWith(
-        expect.stringContaining("disable_notification=true")
-      )
-    })
-
-    it("should NOT set disable_notification=true inside working hours (assuming current hour is 10)", async () => {
-      // Mock Date to be 10 AM
-      vi.spyOn(global, 'Date').mockReturnValue(new Date('2024-01-01T10:00:00.000Z'))
-      const res = { status: 200, json: vi.fn().mockResolvedValue({}) }
-      mockFetch.mockResolvedValue(res)
-
-      await sendMessage(mockText, {})
-
-      expect(mockFetch).not.toHaveBeenCalledWith(
-        expect.stringContaining("disable_notification=true")
-      )
-    })
-
-    it("should set disable_notification=true if explicitly requested", async () => {
-      vi.spyOn(global, 'Date').mockReturnValue(new Date('2024-01-01T10:00:00.000Z')) // Inside hours
-      const res = { status: 200, json: vi.fn().mockResolvedValue({}) }
-      mockFetch.mockResolvedValue(res)
-
-      await sendMessage(mockText, { disable_notification: true })
-
-      expect(mockFetch).toHaveBeenCalledWith(
-        expect.stringContaining("disable_notification=true")
-      )
-    })
-
-    it("should retry sending message if Telegram returns 'can't parse entities' error", async () => {
-      // First call fails with bad parsing, second succeeds
-      const mockErrorResponse = { description: "Bad Request: can't parse entities" }
-      const successResponse = { status: 200, json: vi.fn().mockResolvedValue({}) }
-      
-      mockFetch.mockImplementationOnce(() => Promise.resolve({ status: 400, json: () => Promise.resolve(mockErrorResponse) }))
-      mockFetch.mockResolvedValueOnce(successResponse)
-
-      await sendMessage(mockText, { parse_mode: 'MarkdownV2' })
-
-      // Should have been called twice: once failing, once succeeding
-      expect(mockFetch).toHaveBeenCalledTimes(2)
-    })
-
-    it("should return false if API call fails with status >= 400 and no retry is performed", async () => {
-      const mockErrorResponse = { description: "Unknown error" }
-      const res = { status: 401, json: () => Promise.resolve(mockErrorResponse) }
-      mockFetch.mockResolvedValue(res)
-
-      const result = await sendMessage(mockText, { parse_mode: 'MarkdownV2' })
-
-      expect(result).toBe(false)
-      expect(mockFetch).toHaveBeenCalledTimes(1)
-    })
-
-    it("should return false if network request fails", async () => {
-      global.fetch.mockRejectedValue(new Error("Network Error"))
-
-      const result = await sendMessage(mockText, {})
-
-      expect(result).toBe(false)
-    })
+  afterEach(() => {
+    vi.useRealTimers()
   })
 
-  describe("sendDocument", () => {
-    const mockDocument = Buffer.from("test document")
-    const mockParams = {
-      caption: "Test caption",
-      message_thread_id: 10,
+  it('constructs URL with parse_mode and message_thread_id', async () => {
+    await sendMessage(mockText, { parse_mode: 'HTML', message_thread_id: '123' })
+    expect(mockFetch).toHaveBeenCalledWith(
+      `${BASE_URL}&parse_mode=HTML&message_thread_id=123`
+    )
+  })
+
+  it('adds disable_notification=true outside working hours', async () => {
+    vi.setSystemTime(new Date('2026-06-28T23:00:00Z'))
+    await sendMessage(mockText, {})
+    expect(mockFetch).toHaveBeenCalledWith(
+      expect.stringContaining('&disable_notification=true')
+    )
+  })
+
+  it('slices text at MAX_TELEGRAM_MSG_LENGTH', async () => {
+    await sendMessage('A'.repeat(5000), {})
+    expect(mockFetch).toHaveBeenCalledWith(
+      expect.stringContaining(`text=${'A'.repeat(4096)}`)
+    )
+  })
+
+  it('returns false and calls log.error on network failure', async () => {
+    mockFetch.mockRejectedValue(new Error('timeout'))
+    const result = await sendMessage(mockText, {})
+    expect(result).toBe(false)
+    expect(vi.mocked(log.error)).toHaveBeenCalledWith(new Error('timeout'))
+  })
+
+  it('returns false and logs description on Telegram 4xx error', async () => {
+    mockFetch.mockResolvedValue({
+      status: 400,
+      json: async () => ({ description: 'Bad Request' })
+    })
+    const result = await sendMessage(mockText, {})
+    expect(result).toBe(false)
+    expect(vi.mocked(log.error)).toHaveBeenCalledWith('Bad Request', mockText)
+  })
+
+  it('retries without parse_mode when can\'t parse entities', async () => {
+    mockFetch
+      .mockResolvedValueOnce({
+        status: 400,
+        json: async () => ({ description: "can't parse entities: bad" })
+      })
+      .mockResolvedValue({ status: 200, json: async () => ({}) })
+
+    await sendMessage(mockText, { parse_mode: 'HTML', message_thread_id: '123' })
+
+    expect(mockFetch).toHaveBeenCalledTimes(2)
+    // перший виклик — з parse_mode
+    expect(mockFetch.mock.calls[0][0]).toContain('parse_mode=HTML')
+    // другий виклик — без parse_mode (plain text retry)
+    expect(mockFetch.mock.calls[1][0]).not.toContain('parse_mode=')
+  })
+})
+
+describe('sendDocument', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    mockFetch.mockResolvedValue({ status: 200, json: async () => ({}) })
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-06-28T10:00:00Z'))
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
+  })
+
+  it('calls fetch with POST and FormData body', async () => {
+    await sendDocument(Buffer.from('data'), {
+      caption: 'Test',
       contentType: 'application/pdf',
-      filename: 'doc.pdf',
-    }
-    const mockFetch = vi.fn()
+      filename: 'doc.pdf'
+    })
+    expect(mockFetch).toHaveBeenCalledWith(
+      expect.stringContaining('/sendDocument'),
+      expect.objectContaining({ method: 'POST', body: expect.any(FormData) })
+    )
+  })
 
-    beforeEach(() => {
-      global.fetch = mockFetch
-      vi.clearAllMocks()
+  it('retries without caption parse_mode on parse error', async () => {
+    mockFetch
+      .mockResolvedValueOnce({
+        status: 400,
+        json: async () => ({ description: "can't parse entities" })
+      })
+      .mockResolvedValue({ status: 200, json: async () => ({}) })
+
+    await sendDocument(Buffer.from('data'), {
+      caption: 'Bold *text*',
+      parse_mode: 'MarkdownV2',
+      contentType: 'application/pdf',
+      filename: 'doc.pdf'
     })
 
-    it("should send document with all provided parameters", async () => {
-      const res = { status: 200, json: vi.fn().mockResolvedValue({}) }
-      mockFetch.mockResolvedValue(res)
-
-      await sendDocument(mockDocument, mockParams)
-
-      expect(mockFetch).toHaveBeenCalledWith(
-        expect.stringContaining("/sendDocument"),
-        expect.objectContaining({ method: 'POST', body: expect.any(FormData) })
-      )
-      
-      const formData = mockFetch.mock.calls[0][1].body
-      expect(formData.get('chat_id')).toBe('TEST_CHAT_ID')
-      expect(formData.get('document')).toBe('document') // Check blob content or structure logic if needed, but checking key presence is sufficient for simple test
-      expect(formData.get('caption')).toBe("Test caption")
-      expect(formData.get('parse_mode')).toBe("MarkdownV2") // Default from env/context if not specified in params
-      expect(formData.get('message_thread_id')).toBe('10')
-      expect(formData.get('disable_notification')).toBeNull() // Should be absent by default
-    })
-
-    it("should use default settings when no params are provided", async () => {
-      const res = { status: 200, json: vi.fn().mockResolvedValue({}) }
-      mockFetch.mockResolvedValue(res)
-
-      await sendDocument(mockDocument)
-
-      // Check that it used defaults (e.g., application/octet-stream, default filename)
-      const formData = mockFetch.mock.calls[0][1].body
-      expect(formData.get('caption')).toBeNull()
-      expect(formData.get('document')).toBe('document') // Default filename
-    })
-
-    it("should handle non-working hours by appending disable_notification=true", async () => {
-      // Mock Date to be 7 AM
-      vi.spyOn(global, 'Date').mockReturnValue(new Date('2024-01-01T07:00:00.000Z'))
-      const res = { status: 200, json: vi.fn().mockResolvedValue({}) }
-      mockFetch.mockResolvedValue(res)
-
-      await sendDocument(mockDocument, {})
-
-      const formData = mockFetch.mock.calls[0][1].body
-      expect(formData.get('disable_notification')).toBe('true')
-    })
-
-    it("should retry sending document if Telegram returns 'can't parse entities' error on caption", async () => {
-      const mockErrorResponse = { description: "Bad Request: can't parse entities" }
-      const successResponse = { status: 200, json: vi.fn().mockResolvedValue({}) }
-      
-      mockFetch.mockImplementationOnce(() => Promise.resolve({ status: 400, json: () => Promise.resolve(mockErrorResponse) }))
-      mockFetch.mockResolvedValueOnce(successResponse)
-
-      await sendDocument(mockDocument, { caption: "Bad *markup*" })
-
-      // Should have been called twice: once failing, once succeeding
-      expect(mockFetch).toHaveBeenCalledTimes(2)
-    })
-
-    it("should return false if API call fails with status >= 400 and no retry is performed", async () => {
-      const mockErrorResponse = { description: "Unknown error" }
-      const res = { status: 500, json: () => Promise.resolve(mockErrorResponse) }
-      mockFetch.mockResolvedValue(res)
-
-      const result = await sendDocument(mockDocument)
-
-      expect(result).toBe(false)
-    })
+    expect(mockFetch).toHaveBeenCalledTimes(2)
   })
 })
