@@ -2,7 +2,7 @@ import { checkEnv } from '@nitra/check-env'
 import { log } from '@nitra/pino'
 import { env } from 'node:process'
 
-checkEnv(['TELEGRAM_BOT_TOKEN', 'TELEGRAM_CHAT_ID'])
+checkEnv(['TELEGRAM_BOT_TOKEN'])
 
 export const MAX_TELEGRAM_MSG_LENGTH = 4096
 
@@ -41,6 +41,12 @@ const telegramRequest = async (url, init, { params, parseMode, onParseError }) =
   }
 }
 
+const resolveChatId = params => {
+  const chatId = params?.chat_id ?? env.TELEGRAM_CHAT_ID
+  if (!chatId) throw new Error('chat_id must be provided via params.chat_id or TELEGRAM_CHAT_ID env var')
+  return chatId
+}
+
 const resolveCommonParams = params => ({
   threadId: params?.message_thread_id ?? env.TELEGRAM_THREAD_ID,
   silent: !isWorkingHour() || params?.disable_notification === true,
@@ -53,13 +59,14 @@ export const sendMessage = async (text, params) => {
 
   const parseMode = resolveParseMode(params)
   const { threadId, silent } = resolveCommonParams(params)
+  const chatId = resolveChatId(params)
 
   // Telegram HTML не підтримує <br> — конвертуємо у перенос рядка.
   if (parseMode === 'HTML') {
     text = text.replaceAll(/<\/?br\s*\/?>/gi, '\n')
   }
 
-  let url = `https://api.telegram.org/bot${env.TELEGRAM_BOT_TOKEN}/sendMessage?chat_id=${env.TELEGRAM_CHAT_ID}&text=${encodeURIComponent(text)}`
+  let url = `https://api.telegram.org/bot${env.TELEGRAM_BOT_TOKEN}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(text)}`
   if (parseMode) url += `&parse_mode=${parseMode}`
   if (threadId) url += `&message_thread_id=${threadId}`
   if (silent) url += '&disable_notification=true'
@@ -74,9 +81,10 @@ export const sendMessage = async (text, params) => {
 export const sendDocument = async (document, params = {}) => {
   const parseMode = resolveParseMode(params)
   const { threadId, silent } = resolveCommonParams(params)
+  const chatId = resolveChatId(params)
 
   const formData = new FormData()
-  formData.append('chat_id', env.TELEGRAM_CHAT_ID)
+  formData.append('chat_id', chatId)
   formData.append('document', new Blob([document], { type: params.contentType || 'application/octet-stream' }), params.filename || 'document.txt')
 
   if (params.caption) {

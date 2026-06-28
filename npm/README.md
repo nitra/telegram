@@ -12,11 +12,11 @@ bun add @nitra/telegram
 
 Потрібні змінні середовища (перевіряються при імпорті через `@nitra/check-env`):
 
-| Змінна               | Опис                                              |
-| -------------------- | ------------------------------------------------- |
-| `TELEGRAM_BOT_TOKEN` | токен бота                                        |
-| `TELEGRAM_CHAT_ID`   | id чату/каналу для відправки                      |
-| `TELEGRAM_THREAD_ID` | id топіка в супергрупі (опційно, дефолтний топік) |
+| Змінна               | Опис                                                                    |
+| -------------------- | ----------------------------------------------------------------------- |
+| `TELEGRAM_BOT_TOKEN` | токен бота (обов'язково)                                                |
+| `TELEGRAM_CHAT_ID`   | id чату/каналу (опційно; можна передати через `params.chat_id`)         |
+| `TELEGRAM_THREAD_ID` | id топіка в супергрупі (опційно; можна передати через `params.message_thread_id`) |
 
 ## Формат за замовчуванням
 
@@ -56,11 +56,12 @@ await sendMessage('повідомлення в топік', { message_thread_id:
 
 `params`:
 
-| Поле                   | Тип                              | За замовчуванням | Опис                                    |
-| ---------------------- | -------------------------------- | ---------------- | --------------------------------------- |
-| `parse_mode`           | `'MarkdownV2' \| 'HTML' \| ''`  | `'MarkdownV2'`   | формат розмітки; `''`/`null` — вимкнути |
-| `message_thread_id`    | `number`                         | `TELEGRAM_THREAD_ID` | id топіка; override для env змінної |
-| `disable_notification` | `boolean`                        | —                | надіслати без звуку                     |
+| Поле                   | Тип                              | За замовчуванням     | Опис                                    |
+| ---------------------- | -------------------------------- | -------------------- | --------------------------------------- |
+| `chat_id`              | `string \| number`               | `TELEGRAM_CHAT_ID`   | id чату; override для env змінної       |
+| `parse_mode`           | `'MarkdownV2' \| 'HTML' \| ''`  | `'MarkdownV2'`       | формат розмітки; `''`/`null` — вимкнути |
+| `message_thread_id`    | `number`                         | `TELEGRAM_THREAD_ID` | id топіка; override для env змінної     |
+| `disable_notification` | `boolean`                        | —                    | надіслати без звуку                     |
 
 > У робочі години (08:00–18:00) сповіщення зі звуком; поза ними — автоматично тихо.
 > Повідомлення довші за 4096 символів обрізаються.
@@ -82,7 +83,7 @@ await sendDocument(Buffer.from(csv), {
 })
 ```
 
-`params`: `filename`, `contentType`, `caption`, `parse_mode` (дефолт MarkdownV2, лише
+`params`: `chat_id`, `filename`, `contentType`, `caption`, `parse_mode` (дефолт MarkdownV2, лише
 для `caption`), `message_thread_id`, `disable_notification`. Як і в `sendMessage`,
 невалідна розмітка caption не блокує відправку — повтор без розмітки.
 
