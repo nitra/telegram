@@ -48,6 +48,10 @@ export const sendMessage = async (text, params) => {
     url += `&parse_mode=${parseMode}`
   }
 
+  if (params?.message_thread_id) {
+    url += `&message_thread_id=${params.message_thread_id}`
+  }
+
   // Якщо в неробочий час або відключено сповіщення, то додаємо параметр disable_notification
   if (!(currentHour >= 8 && currentHour <= 18) || params?.disable_notification === true) {
     url += '&disable_notification=true'
@@ -94,6 +98,10 @@ export const sendDocument = async (document, params = {}) => {
     if (parseMode) {
       formData.append('parse_mode', parseMode)
     }
+  }
+
+  if (params.message_thread_id) {
+    formData.append('message_thread_id', String(params.message_thread_id))
   }
 
   // Якщо в неробочий час або відключено сповіщення, то додаємо параметр disable_notification
