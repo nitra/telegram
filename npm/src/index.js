@@ -13,7 +13,7 @@ export const DEFAULT_PARSE_MODE = 'MarkdownV2'
 // Екранує спецсимволи MarkdownV2. Застосовувати до ДИНАМІЧНОГО контенту (тексти
 // помилок, змінні) — інакше Telegram падає з "can't parse entities". Навмисно не
 // застосовується авто до всього тексту, бо це знищило б навмисну розмітку.
-export const escapeMarkdownV2 = text => String(text).replaceAll(/[_*[\]()~`>#+\-=|{}.!\\]/g, String.raw`\$&`)
+export const escapeMarkdownV2 = text => String(text).replaceAll(/[_*[\]()#+\-=|{}.!\\]/g, String.raw`\$&`)
 
 // Дефолт — MarkdownV2; явні '' / null / undefined → без розмітки (plain text).
 const resolveParseMode = params => {
