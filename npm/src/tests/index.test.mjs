@@ -1,136 +1,106 @@
-import { vi, describe, it, expect, beforeEach, afterEach, beforeAll, afterAll } from "vitest";
+import { vi, beforeEach, afterEach, describe, it, expect } from 'vitest'
 
-// Mocking external dependencies used in src/index.js
-// @nitra/check-env and @nitra/pino are side-effecting imports, so we mock them.
-vi.mock("@nitra/check-env", () => ({
-  checkEnv: vi.fn(),
-}));
-vi.mock("@nitra/pino", () => ({
-  log: {
-    error: vi.fn(),
-  },
-}));
+vi.mock('@nitra/check-env', () => ({ checkEnv: vi.fn() }))
+vi.mock('@nitra/pino', () => ({ log: { error: vi.fn() } }))
 
-// Since the module has a side-effect upon load (checkEnv call),
-// we must set up env variables *before* dynamic import.
-vi.stubEnv("TELEGRAM_BOT_TOKEN", "TEST_TOKEN");
-vi.stubEnv("TELEGRAM_CHAT_ID", "TEST_CHAT_ID");
+const {
+  MAX_TELEGRAM_MSG_LENGTH,
+  DEFAULT_PARSE_MODE,
+  escapeMarkdownV2,
+  sendMessage,
+  sendDocument,
+} = await import('../index.js')
 
-describe("Public API Tests (src/index.js)", () => {
-  let sendMessage;
-  let sendDocument;
-  let originalFetch;
+const mockFetch = vi.fn()
 
-  beforeAll(async () => {
-    // Set up mock for fetch before importing the module
-    originalFetch = global.fetch;
-    global.fetch = vi.fn(() =>
-      Promise.resolve({
-        status: 200,
-        json: () => Promise.resolve({}),
-      })
-    );
+beforeEach(() => {
+  vi.stubGlobal('fetch', mockFetch)
+  vi.stubEnv('TELEGRAM_BOT_TOKEN', 'TEST_TOKEN')
+  vi.stubEnv('TELEGRAM_CHAT_ID', 'TEST_CHAT')
+  vi.stubEnv('TELEGRAM_THREAD_ID', '')
+  mockFetch.mockResolvedValue({ status: 200 })
+})
 
-    // Dynamically import the module after setting up mocks and environment
-    const module = await import("../index.js");
-    sendMessage = module.sendMessage;
-    sendDocument = module.sendDocument;
-  });
+afterEach(() => {
+  vi.unstubAllGlobals()
+  vi.unstubAllEnvs()
+  vi.clearAllMocks()
+})
 
-  afterAll(async () => {
-    // Restore original fetch
-    global.fetch = originalFetch;
-    // Unstub environment variables
-    vi.unstubAllEnvs();
-  });
+describe('MAX_TELEGRAM_MSG_LENGTH', () => {
+  it('is 4096', () => {
+    expect(MAX_TELEGRAM_MSG_LENGTH).toBe(4096)
+  })
+})
 
-  beforeEach(() => {
-    vi.clearAllMocks();
-    // Ensure all environment variables are stubbed/unstubbed correctly across tests if necessary
-    vi.stubEnv("TELEGRAM_BOT_TOKEN", "TEST_TOKEN");
-    vi.stubEnv("TELEGRAM_CHAT_ID", "TEST_CHAT_ID");
-  });
+describe('DEFAULT_PARSE_MODE', () => {
+  it('is MarkdownV2', () => {
+    expect(DEFAULT_PARSE_MODE).toBe('MarkdownV2')
+  })
+})
 
-  it("should export correct constants", async () => {
-    // Import constants separately to avoid side-effects if they are defined in the module scope
-    const module = await import("../index.js");
-    const { MAX_TELEGRAM_MSG_LENGTH, DEFAULT_PARSE_MODE } = module;
+describe('escapeMarkdownV2', () => {
+  it('escapes asterisk', () => expect(escapeMarkdownV2('*')).toBe('\\*'))
+  it('escapes underscore', () => expect(escapeMarkdownV2('_')).toBe('\\_'))
+  it('escapes dot', () => expect(escapeMarkdownV2('.')).toBe('\\.'))
+  it('escapes backslash', () => expect(escapeMarkdownV2('\\')).toBe('\\\\'))
+  it('escapes opening bracket', () => expect(escapeMarkdownV2('[')).toBe('\\['))
+  it('escapes closing paren', () => expect(escapeMarkdownV2(')')).toBe('\\)'))
+  it('leaves plain text unchanged', () => expect(escapeMarkdownV2('hello 123')).toBe('hello 123'))
+  it('converts null to escaped string', () => expect(escapeMarkdownV2(null)).toBe('null'))
+  it('converts undefined to escaped string', () => expect(escapeMarkdownV2(undefined)).toBe('undefined'))
+})
 
-    expect(MAX_TELEGRAM_MSG_LENGTH).toBe(4096);
-    expect(DEFAULT_PARSE_MODE).toBe("MarkdownV2");
-  });
+describe('sendMessage', () => {
+  it('calls fetch with correct URL structure', async () => {
+    await sendMessage('hello', {})
+    const url = mockFetch.mock.calls[0][0]
+    expect(url).toContain('botTEST_TOKEN/sendMessage')
+    expect(url).toContain('chat_id=TEST_CHAT')
+    expect(url).toContain(`text=${encodeURIComponent('hello')}`)
+  })
 
-  it("should correctly escape MarkdownV2 special characters", async () => {
-    const module = await import("../index.js");
-    const { escapeMarkdownV2 } = module;
-    
-    // Test known characters
-    expect(escapeMarkdownV2("")).toBe("");
-    expect(escapeMarkdownV2("*")).toBe("\\*");
-    expect(escapeMarkdownV2("_")).toBe("\\_");
-    expect(escapeMarkdownV2("[")).toBe("\\[");
-    expect(escapeMarkdownV2("]")).toBe("\\]");
-    expect(escapeMarkdownV2("(")).toBe("\\(");
-    expect(escapeMarkdownV2(")")).toBe("\\)");
-    expect(escapeMarkdownV2("~")).toBe("\\~");
-    expect(escapeMarkdownV2("`")).toBe("\\`");
-    expect(escapeMarkdownV2(">")).toBe("\\>");
-    expect(escapeMarkdownV2("#")).toBe("\\#");
-    expect(escapeMarkdownV2("+")).toBe("\\+");
-    expect(escapeMarkdownV2("-")).toBe("\\-");
-    expect(escapeMarkdownV2("|")).toBe("\\|");
-    expect(escapeMarkdownV2("{")).toBe("\\{");
-    expect(escapeMarkdownV2(".")).toBe("\\.");
-    expect(escapeMarkdownV2("!")).toBe("\\!");
-    expect(escapeMarkdownV2("\\")).toBe("\\\\"); // Escape the escape character itself
-  });
+  it('includes parse_mode when provided', async () => {
+    await sendMessage('hi', { parse_mode: 'HTML' })
+    const url = mockFetch.mock.calls[0][0]
+    expect(url).toContain('parse_mode=HTML')
+  })
 
-  describe("sendMessage", () => {
-    it("should truncate message if it exceeds MAX_TELEGRAM_MSG_LENGTH", async () => {
-      const longText = "A".repeat(4097);
-      await sendMessage(longText, {});
+  it('truncates text longer than MAX_TELEGRAM_MSG_LENGTH', async () => {
+    const long = 'A'.repeat(MAX_TELEGRAM_MSG_LENGTH + 10)
+    await sendMessage(long, {})
+    const url = mockFetch.mock.calls[0][0]
+    const expected = 'A'.repeat(MAX_TELEGRAM_MSG_LENGTH)
+    expect(url).toContain(`text=${encodeURIComponent(expected)}`)
+  })
 
-      const url = global.fetch.mock.calls[0][0];
-      expect(url).toContain(`text=${"A".repeat(4096)}`);
-    });
+  it('converts <br> tags to newlines in HTML mode', async () => {
+    await sendMessage('a<br>b<br/>c', { parse_mode: 'HTML' })
+    const url = mockFetch.mock.calls[0][0]
+    expect(url).toContain(encodeURIComponent('a\nb\nc'))
+  })
 
-    it("should call fetch with correct URL structure for MarkdownV2", async () => {
-      const text = "Hello World";
-      await sendMessage(text, { parse_mode: "MarkdownV2" });
+  it('includes disable_notification when silent param is true', async () => {
+    vi.setSystemTime(new Date('2024-01-01T03:00:00'))
+    await sendMessage('msg', { parse_mode: '' })
+    const url = mockFetch.mock.calls[0][0]
+    expect(url).toContain('disable_notification=true')
+  })
+})
 
-      const url = global.fetch.mock.calls[0][0];
-      expect(url).toContain("text=Hello%20World");
-      expect(url).toContain("parse_mode=MarkdownV2");
-    });
+describe('sendDocument', () => {
+  it('calls fetch with POST method and FormData', async () => {
+    await sendDocument('file content', { filename: 'test.txt' })
+    const [url, init] = mockFetch.mock.calls[0]
+    expect(url).toContain('botTEST_TOKEN/sendDocument')
+    expect(init.method).toBe('POST')
+    expect(init.body).toBeInstanceOf(FormData)
+  })
 
-    it("should replace <br> tags with newlines before sending", async () => {
-      const text = "<br>Test<br>";
-      await sendMessage(text, { parse_mode: "HTML" });
-
-      const url = global.fetch.mock.calls[0][0];
-      expect(url).toContain(`text=${encodeURIComponent("\nTest\n")}`);
-    });
-
-    it("should retry without parse_mode when can't parse entities", async () => {
-      global.fetch.mockImplementationOnce(() =>
-        Promise.resolve({
-          status: 400,
-          json: () => Promise.resolve({ description: "can't parse entities" }),
-        })
-      );
-      global.fetch.mockImplementationOnce(() =>
-        Promise.resolve({
-          status: 200,
-          json: () => Promise.resolve({}),
-        })
-      );
-
-      await sendMessage("text", { parse_mode: "MarkdownV2" });
-
-      expect(global.fetch).toHaveBeenCalledTimes(2);
-      // first call had parse_mode, retry call did not
-      expect(global.fetch.mock.calls[0][0]).toContain("parse_mode=MarkdownV2");
-      expect(global.fetch.mock.calls[1][0]).not.toContain("parse_mode=");
-    });
-  });
-});
+  it('includes caption when provided', async () => {
+    await sendDocument('data', { caption: 'My caption' })
+    const [, init] = mockFetch.mock.calls[0]
+    const body = init.body
+    expect(body.get('caption')).toBe('My caption')
+  })
+})

@@ -2,7 +2,7 @@ import { checkEnv } from '@nitra/check-env'
 import { log } from '@nitra/pino'
 import { env } from 'node:process'
 
-checkEnv(['TELEGRAM_BOT_TOKEN'])
+checkEnv(['TELEGRAM_BOT_TOKEN', 'TELEGRAM_CHAT_ID'])
 
 export const MAX_TELEGRAM_MSG_LENGTH = 4096
 
@@ -41,11 +41,7 @@ const telegramRequest = async (url, init, { params, parseMode, onParseError }) =
   }
 }
 
-const resolveChatId = params => {
-  const chatId = params?.chat_id ?? env.TELEGRAM_CHAT_ID
-  if (!chatId) throw new Error('chat_id must be provided via params.chat_id or TELEGRAM_CHAT_ID env var')
-  return chatId
-}
+const resolveChatId = params => params?.chat_id ?? env.TELEGRAM_CHAT_ID
 
 const resolveCommonParams = params => ({
   threadId: params?.message_thread_id ?? env.TELEGRAM_THREAD_ID,
