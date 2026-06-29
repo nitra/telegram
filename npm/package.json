@@ -15,7 +15,8 @@
   },
   "files": [
     "src/index.js",
-    "src/cli.js"
+    "src/cli.js",
+    "CHANGELOG.md"
   ],
   "bin": {
     "telegram": "./src/cli.js"
