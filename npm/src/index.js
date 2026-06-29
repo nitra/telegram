@@ -38,14 +38,15 @@ const telegramRequest = async (url, init, { params, parseMode, onParseError }) =
     return false
   }
 
+  const data = await res.json()
   if (res.status >= 400) {
-    const data = await res.json()
     if (parseMode && /can't parse entities/i.test(data.description ?? '')) {
       return onParseError()
     }
     log.error(data.description)
     return false
   }
+  return data
 }
 
 const resolveChatId = params => params?.chat_id ?? env.TELEGRAM_CHAT_ID
