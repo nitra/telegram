@@ -4,3 +4,12 @@ node_modules/
 .env.*.local
 
 *.secret
+# @nitra/cursor (adr) — локальні артефакти Stop-hook, не коміти
+dist/
+.claude/hooks/*.log
+.claude/hooks/.normalize-state
+.claude/hooks/.normalize.lock
+.claude/scheduled_tasks.lock
+
+# @nitra/cursor — локальні git-worktree, не коміти
+.worktrees/

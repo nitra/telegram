@@ -1,0 +1,24 @@
+{
+  "$schema": "https://unpkg.com/@nitra/cursor/schemas/n-cursor.json",
+  "rules": [
+    "adr",
+    "bun",
+    "changelog",
+    "doc-files",
+    "ga",
+    "js",
+    "js-run",
+    "npm-module",
+    "security",
+    "test",
+    "text"
+  ],
+  "skills": [
+    "adr-normalize",
+    "doc-files",
+    "lint",
+    "llm-patch",
+    "publish-telegram",
+    "taze"
+  ]
+}
