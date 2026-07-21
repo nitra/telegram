@@ -1,25 +1,26 @@
-import { vi, describe, it, expect, beforeEach, afterEach } from "vitest"
+import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest'
 
-vi.mock("@nitra/check-env", () => ({ checkEnv: vi.fn() }))
-vi.mock("@nitra/pino", () => ({
+vi.mock('@nitra/check-env', () => ({ checkEnv: vi.fn() }))
+vi.mock('@nitra/pino', () => ({
   log: {
     error: vi.fn()
   }
 }))
 
-// Правильний імпорт усіх необхідних компонентів
-const { MAX_TELEGRAM_MSG_LENGTH, DEFAULT_PARSE_MODE, escapeMarkdownV2, sendMessage, sendDocument } = await import("../index.js")
+const { MAX_TELEGRAM_MSG_LENGTH, DEFAULT_PARSE_MODE, escapeMarkdownV2, sendMessage, sendDocument } =
+  await import('../index.js')
 
 const mockFetch = vi.fn()
 
 beforeEach(() => {
   vi.clearAllMocks()
-  vi.stubGlobal("fetch", mockFetch)
+  vi.stubGlobal('fetch', mockFetch)
   mockFetch.mockResolvedValue({ status: 200, json: async () => ({}) })
-  vi.stubEnv("TELEGRAM_CHAT_ID", "12345")
-  vi.stubEnv("TELEGRAM_THREAD_ID", "thread_abc")
-  vi.stubEnv("TELEGRAM_BOT_TOKEN", "bottest_value") // Використовуємо мок токен для узгодженості
+  vi.stubEnv('TELEGRAM_CHAT_ID', 'test_value')
+  vi.stubEnv('TELEGRAM_THREAD_ID', 'test_value')
+  vi.stubEnv('TELEGRAM_BOT_TOKEN', 'test_value')
   vi.useFakeTimers()
+  vi.setSystemTime(new Date('2024-01-01T02:00:00')) // поза робочими годинами
 })
 
 afterEach(() => {
@@ -29,186 +30,257 @@ afterEach(() => {
   vi.useRealTimers()
 })
 
-
-describe("MAX_TELEGRAM_MSG_LENGTH", () => {
-  it("should be equal to 4096", () => {
+describe('MAX_TELEGRAM_MSG_LENGTH', () => {
+  it('should be equal to 4096', () => {
     expect(MAX_TELEGRAM_MSG_LENGTH).toBe(4096)
   })
 })
 
-describe("DEFAULT_PARSE_MODE", () => {
-  it("повинен дорівнювати 'MarkdownV2'", () => {
-    expect(DEFAULT_PARSE_MODE).toBe("MarkdownV2");
-  });
-});
+describe('DEFAULT_PARSE_MODE', () => {
+  it("should be 'MarkdownV2'", () => {
+    expect(DEFAULT_PARSE_MODE).toBe('MarkdownV2')
+  })
+})
 
-describe("escapeMarkdownV2", () => {
-  it("should convert null to string 'null'", () => {
-    expect(escapeMarkdownV2(null)).toBe("null");
-  });
-
-  it("should convert undefined to string 'undefined'", () => {
-    expect(escapeMarkdownV2(undefined)).toBe("undefined");
-  });
-
-  it("should return an empty string for an empty string input", () => {
-    expect(escapeMarkdownV2("")).toBe("");
-  });
-
-  it("should escape '*' correctly", () => {
-    expect(escapeMarkdownV2("*")).toBe("\\*");
-  });
-
-  it("should escape '_' correctly", () => {
-    expect(escapeMarkdownV2("_")).toBe("\\_");
-  });
-
-  it("should escape '[' correctly", () => {
-    expect(escapeMarkdownV2("[")).toBe("\\[");
-  });
-
-  it("should escape ']' correctly", () => {
-    expect(escapeMarkdownV2("]")).toBe("\\]");
-  });
-
-  it("should escape '(' correctly", () => {
-    expect(escapeMarkdownV2("(")).toBe("\\(");
-  });
-
-  it("should escape ')' correctly", () => {
-    expect(escapeMarkdownV2(")")).toBe("\\)");
-  });
-
-  it("should escape '~' correctly", () => {
-    expect(escapeMarkdownV2("~")).toBe("\\~");
-  });
-
-  it("should escape '`' correctly", () => {
-    expect(escapeMarkdownV2("`")).toBe("\\`");
-  });
-
-  it("should escape '>' correctly", () => {
-    expect(escapeMarkdownV2(">")).toBe("\\>");
-  });
-
-  it("should escape '#' correctly", () => {
-    expect(escapeMarkdownV2("#")).toBe("\\#");
-  });
-
-  it("should escape '+' correctly", () => {
-    expect(escapeMarkdownV2("+")).toBe("\\+");
-  });
-
-  it("should escape '-' correctly", () => {
-    expect(escapeMarkdownV2("-")).toBe("\\-");
-  });
-
-  it("should escape '=' correctly", () => {
-    expect(escapeMarkdownV2("=")).toBe("\\=");
-  });
-
-  it("should escape '|' correctly", () => {
-    expect(escapeMarkdownV2("|")).toBe("\\|");
-  });
-
-  it("should escape '{' correctly", () => {
-    expect(escapeMarkdownV2("{")).toBe("\\{");
-  });
-
-  it("should escape '}' correctly", () => {
-    expect(escapeMarkdownV2("}")).toBe("\\}");
-  });
-
-  it("should escape '.' correctly", () => {
-    expect(escapeMarkdownV2(".")).toBe("\\.");
-  });
-
-  it("should escape '!' correctly", () => {
-    expect(escapeMarkdownV2("!")).toBe("\\!");
-  });
-
-  it("should escape '\\' correctly", () => {
-    expect(escapeMarkdownV2("\\")).toBe("\\\\");
-  });
-
-  it("should return 'hello' unchanged for plain text", () => {
-    expect(escapeMarkdownV2("hello")).toBe("hello");
-  });
-
-  it("should return 'hello world' unchanged for plain text with spaces", () => {
-    expect(escapeMarkdownV2("hello world")).toBe("hello world");
-  });
-
-  it("should convert 0 to string '0'", () => {
-    expect(escapeMarkdownV2(0)).toBe("0");
-  });
-
-  it("should convert 42 to string '42'", () => {
-    expect(escapeMarkdownV2(42)).toBe("42");
-  });
-});
-
-describe("sendMessage", () => {
-  const mockText = "Hello World";
-  // Змінено токен на мок токен для відповідності консистентності в тестах
-  const mockParams = {
-    chat_id: "12345",
-    parse_mode: "MarkdownV2",
-    message_thread_id: "thread_abc",
-    silent: true,
-  };
-  // Змінено токен на 'bottest_value'
-  // Переконаємося, що URL відповідає тому, що створюється з env.TELEGRAM_BOT_TOKEN
-  const expectedUrl = "https://api.telegram.org/botbottest_value/sendMessage?chat_id=12345&text=Hello%20World&parse_mode=MarkdownV2&message_thread_id=thread_abc&disable_notification=true";
-
-  beforeEach(() => {
-    mockFetch.mockClear()
+describe('escapeMarkdownV2', () => {
+  it('should escape special characters correctly', () => {
+    expect(escapeMarkdownV2('*')).toBe('\\*')
+    expect(escapeMarkdownV2('_')).toBe('\\_')
+    expect(escapeMarkdownV2('[')).toBe('\\[')
+    expect(escapeMarkdownV2(']')).toBe('\\]')
+    expect(escapeMarkdownV2('(')).toBe('\\(')
+    expect(escapeMarkdownV2(')')).toBe('\\)')
+    expect(escapeMarkdownV2('~')).toBe('\\~')
+    expect(escapeMarkdownV2('`')).toBe('\\`')
+    expect(escapeMarkdownV2('>')).toBe('\\>')
+    expect(escapeMarkdownV2('#')).toBe('\\#')
+    expect(escapeMarkdownV2('+')).toBe('\\+')
+    expect(escapeMarkdownV2('-')).toBe('\\-')
+    expect(escapeMarkdownV2('=')).toBe('\\=')
+    expect(escapeMarkdownV2('|')).toBe('\\|')
+    expect(escapeMarkdownV2('{')).toBe('\\{')
+    expect(escapeMarkdownV2('}')).toBe('\\}')
+    expect(escapeMarkdownV2('.')).toBe('\\.')
+    expect(escapeMarkdownV2('!')).toBe('\\!')
+    expect(escapeMarkdownV2('\\')).toBe('\\\\')
   })
 
-  it("should call telegramRequest with correct URL and params when parse_mode is MarkdownV2 and silent is true", async () => {
-    await sendMessage(mockText, mockParams)
-
-    // Check URL construction. We must check the URL string since fetch always gets 2 arguments (url, init)
-    expect(mockFetch).toHaveBeenCalledTimes(1)
-    const [url, init] = mockFetch.mock.calls[0]
-    expect(url).toBe(expectedUrl)
-    expect(init).toBeUndefined()
+  it('should return the input as a string for normal text', () => {
+    expect(escapeMarkdownV2('hello')).toBe('hello')
+    expect(escapeMarkdownV2('hello world')).toBe('hello world')
   })
 
-  it("should truncate text if it exceeds MAX_TELEGRAM_MSG_LENGTH", async () => {
-    const longText = "A".repeat(MAX_TELEGRAM_MSG_LENGTH + 1)
-    await sendMessage(longText, { chat_id: "12345" })
-
-    const expectedTruncatedText = "A".repeat(MAX_TELEGRAM_MSG_LENGTH)
-    // Згідно з правилами, використовуємо stringContaining
-    const expectedTruncatedUrlPart = `text=${encodeURIComponent(expectedTruncatedText)}`;
-    
-    expect(mockFetch).toHaveBeenCalledTimes(1)
-    const [url] = mockFetch.mock.calls[0]
-    expect(url).toContain(expectedTruncatedUrlPart)
+  it('should handle null, undefined, and empty string inputs', () => {
+    expect(escapeMarkdownV2(null)).toBe('null')
+    expect(escapeMarkdownV2(undefined)).toBe('undefined')
+    expect(escapeMarkdownV2('')).toBe('')
   })
 
-  it("should handle HTML parse mode by replacing <br> with newline", async () => {
-    const htmlText = "Hello<br>World";
-    await sendMessage(htmlText, { chat_id: "12345", parse_mode: "HTML" })
+  it('should convert number inputs to string and return', () => {
+    expect(escapeMarkdownV2(0)).toBe('0')
+    expect(escapeMarkdownV2(42)).toBe('42')
+  })
+})
 
-    // Telegram API expects \n in the URL when using HTML mode for line breaks
-    const expectedUrlWithNewline = "https://api.telegram.org/botbottest_value/sendMessage?chat_id=12345&text=Hello%0AWorld&parse_mode=HTML";
+describe('sendMessage', () => {
+  it('should call fetch with the correct URL and params for a simple text message when chat_id is provided', async () => {
+    const text = 'Hello world'
+    const params = { chat_id: 'specific_chat_id', parse_mode: 'MarkdownV2' }
+
+    await sendMessage(text, params)
 
     expect(mockFetch).toHaveBeenCalledTimes(1)
-    const [url] = mockFetch.mock.calls[0]
-    expect(url).toContain("text=Hello%0AWorld")
-    expect(url).toContain("parse_mode=HTML")
+    const url = mockFetch.mock.calls[0][0]
+    expect(url).toContain('https://api.telegram.org/bottest_value/sendMessage')
+    expect(url).toContain('chat_id=specific_chat_id')
+    expect(url).toContain('text=Hello%20world')
+    expect(url).toContain('parse_mode=MarkdownV2')
   })
 
-  it("should use default TELEGRAM_CHAT_ID when chat_id is missing in params", async () => {
-    // Очікуваний URL з використанням env.TELEGRAM_CHAT_ID="12345"
-    const defaultChatIdUrl = "https://api.telegram.org/botbottest_value/sendMessage?chat_id=12345&text=DefaultText&parse_mode=MarkdownV2&message_thread_id=thread_abc&disable_notification=true";
-    
-    await sendMessage("DefaultText", { parse_mode: "MarkdownV2" })
+  it('should handle empty text input', async () => {
+    const text = ''
+    const params = { chat_id: 'test_value' }
+
+    await sendMessage(text, params)
 
     expect(mockFetch).toHaveBeenCalledTimes(1)
-    const [url] = mockFetch.mock.calls[0]
-    expect(url).toBe(defaultChatIdUrl) // Використовуємо toBe, оскільки це точний URL-рядок
+    const url = mockFetch.mock.calls[0][0]
+    expect(url).toContain('https://api.telegram.org/bottest_value/sendMessage')
+    expect(url).toContain('chat_id=test_value')
+    expect(url).toContain('text=')
+  })
+
+  it('should handle text input with special MarkdownV2 characters correctly', async () => {
+    const text = '*[text](link) { } ~` >#+-=|{}.'
+    const params = { chat_id: 'test_value', parse_mode: 'MarkdownV2' }
+
+    await sendMessage(text, params)
+
+    const encodedText = encodeURIComponent(text)
+
+    expect(mockFetch).toHaveBeenCalledTimes(1)
+    const url = mockFetch.mock.calls[0][0]
+    expect(url).toContain('chat_id=test_value')
+    expect(url).toContain(`text=${encodedText}`)
+    expect(url).toContain('parse_mode=MarkdownV2')
+  })
+
+  it('should handle text longer than MAX_TELEGRAM_MSG_LENGTH by truncating it', async () => {
+    const longText = 'A'.repeat(MAX_TELEGRAM_MSG_LENGTH + 10)
+    const params = { chat_id: 'test_value' }
+
+    await sendMessage(longText, params)
+
+    const truncatedText = 'A'.repeat(MAX_TELEGRAM_MSG_LENGTH)
+    const encodedTruncatedText = encodeURIComponent(truncatedText)
+
+    expect(mockFetch).toHaveBeenCalledTimes(1)
+    const url = mockFetch.mock.calls[0][0]
+    expect(url).toContain('chat_id=test_value')
+    expect(url).toContain(`text=${encodedTruncatedText}`)
+  })
+
+  it("should append disable_notification=true when 'silent' is true in params", async () => {
+    const text = 'Silent message'
+    const params = { chat_id: 'test_value', silent: true }
+
+    await sendMessage(text, params)
+
+    expect(mockFetch).toHaveBeenCalledTimes(1)
+    const url = mockFetch.mock.calls[0][0]
+    expect(url).toContain('disable_notification=true')
+    expect(url).toContain('text=Silent%20message')
+  })
+
+  it('should append message_thread_id when provided', async () => {
+    const text = 'Threaded message'
+    const params = { chat_id: 'test_value', message_thread_id: '12345' }
+
+    await sendMessage(text, params)
+
+    expect(mockFetch).toHaveBeenCalledTimes(1)
+    const url = mockFetch.mock.calls[0][0]
+    expect(url).toContain('message_thread_id=12345')
+    expect(url).toContain('text=Threaded%20message')
+  })
+
+  it('should convert <br> tags to \\n when parseMode is HTML', async () => {
+    const text = 'Line 1<br>Line 2<br/>Line 3'
+    const params = { chat_id: 'test_value', parse_mode: 'HTML' }
+
+    await sendMessage(text, params)
+
+    const expectedText = 'Line 1\nLine 2\nLine 3'
+    const expectedEncodedText = encodeURIComponent(expectedText)
+
+    expect(mockFetch).toHaveBeenCalledTimes(1)
+    const url = mockFetch.mock.calls[0][0]
+    expect(url).toContain('parse_mode=HTML')
+    expect(url).toContain(`text=${expectedEncodedText}`)
+  })
+
+  it('should handle cases where chat_id is missing, falling back to TELEGRAM_CHAT_ID', async () => {
+    const text = 'Fallback chat'
+    const params = { parse_mode: 'MarkdownV2' } // chat_id missing
+
+    await sendMessage(text, params)
+
+    expect(mockFetch).toHaveBeenCalledTimes(1)
+    const url = mockFetch.mock.calls[0][0]
+    expect(url).toContain('chat_id=test_value')
+    expect(url).toContain('text=Fallback%20chat')
+    expect(url).toContain('parse_mode=MarkdownV2')
+  })
+
+  it('should handle cases where parse_mode is missing, resulting in no parse_mode parameter', async () => {
+    const text = 'Simple text'
+    const params = { chat_id: 'test_value' }
+
+    await sendMessage(text, params)
+
+    expect(mockFetch).toHaveBeenCalledTimes(1)
+    const url = mockFetch.mock.calls[0][0]
+    expect(url).toContain('chat_id=test_value')
+    expect(url).toContain('text=Simple%20text')
+    expect(url).not.toContain('parse_mode=')
+  })
+})
+
+describe('sendDocument', () => {
+  it('should return {} when document is null', async () => {
+    const result = await sendDocument(null)
+    expect(result).toEqual({})
+  })
+
+  it('should return {} when document is undefined', async () => {
+    const result = await sendDocument(undefined)
+    expect(result).toEqual({})
+  })
+
+  it('should return {} when document is an empty string', async () => {
+    const result = await sendDocument('')
+    expect(result).toEqual({})
+  })
+
+  it('should return {} when document is a single character string', async () => {
+    const result = await sendDocument('*')
+    expect(result).toEqual({})
+  })
+
+  it('should return {} when document is a digit', async () => {
+    const result = await sendDocument(0)
+    expect(result).toEqual({})
+  })
+
+  it('should handle a simple document successfully and return API response', async () => {
+    const mockContent = new Blob(['test content'], { type: 'application/octet-stream' })
+    const mockParams = {
+      contentType: 'application/octet-stream',
+      filename: 'test.txt',
+      caption: 'Test Caption',
+      parse_mode: 'MarkdownV2'
+    }
+
+    // Mock fetch to simulate success
+    mockFetch.mockResolvedValueOnce({
+      status: 200,
+      json: async () => ({ ok: true, result: 'success' })
+    })
+
+    const result = await sendDocument(mockContent, mockParams)
+
+    // Check fetch call
+    expect(mockFetch).toHaveBeenCalledWith(
+      expect.stringContaining('https://api.telegram.org/bottest_value/sendDocument'),
+      expect.objectContaining({ method: 'POST', body: expect.any(FormData) })
+    )
+
+    // Check return value
+    expect(result).toEqual({ ok: true, result: 'success' })
+  })
+
+  it('should handle a document without caption and threadId', async () => {
+    const mockContent = new Blob(['data'], { type: 'image/jpeg' })
+    const mockParams = {
+      contentType: 'image/jpeg',
+      filename: 'image.jpg'
+    }
+
+    // Mock fetch to simulate success
+    mockFetch.mockResolvedValueOnce({
+      status: 200,
+      json: async () => ({ ok: true, result: 'success' })
+    })
+
+    const result = await sendDocument(mockContent, mockParams)
+
+    // Check fetch call
+    expect(mockFetch).toHaveBeenCalledWith(
+      expect.stringContaining('https://api.telegram.org/bottest_value/sendDocument'),
+      expect.objectContaining({ method: 'POST', body: expect.any(FormData) })
+    )
+
+    // Check return value
+    expect(result).toEqual({ ok: true, result: 'success' })
   })
 })

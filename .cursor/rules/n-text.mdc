@@ -23,6 +23,7 @@ Rego-пакети, що перевіряються через conftest (auto-dis
   "[html]": { "editor.defaultFormatter": "oxc.oxc-vscode" }
 }
 ```
+
 - `.oxfmtrc.json`:
 
 ```json
@@ -35,6 +36,7 @@ Rego-пакети, що перевіряються через conftest (auto-dis
   "ignorePatterns": ["**/hasura/metadata/**", "**/schema.graphql", "**/auto-imports.d.ts"]
 }
 ```
+
 - `.markdownlint-cli2.jsonc`:
 
 ```
@@ -50,6 +52,7 @@ Rego-пакети, що перевіряються через conftest (auto-dis
   }
 }
 ```
+
 - `.cspell.json`:
 
 ```json
@@ -67,6 +70,7 @@ Rego-пакети, що перевіряються через conftest (auto-dis
   ]
 }
 ```
+
 - `.cspell.json`:
 
 ```json
@@ -76,6 +80,7 @@ Rego-пакети, що перевіряються через conftest (auto-dis
   }
 }
 ```
+
 - `.cspell.json`:
 
 ```json
@@ -83,6 +88,7 @@ Rego-пакети, що перевіряються через conftest (auto-dis
   "import": ["@nitra/cspell-dict"]
 }
 ```
+
 - `extensions.json`:
 
 ```json
@@ -90,6 +96,7 @@ Rego-пакети, що перевіряються через conftest (auto-dis
   "recommendations": ["DavidAnson.vscode-markdownlint", "oxc.oxc-vscode", "timonwong.shellcheck"]
 }
 ```
+
 - `lint-text.yml`:
 
 ```yaml
@@ -155,6 +162,7 @@ jobs:
       - name: Lint text
         run: n-cursor lint text --read-only
 ```
+
 - `package.json`:
 
 ```json
@@ -253,7 +261,7 @@ jobs:
 
 Підлаштуй **`language`** під проєкт. Порядок у **`import`** може впливати на пріоритет словників — тримай корпоративний **`@nitra/cspell-dict`** першим, якщо додаєш інші розширення (рідко).
 
-**Український апостроф:** у словах не використовуй прямий символ `'` (U+0027); потрібен типографський апостроф `'` (U+2019). Якщо після цього cspell досі підсвічує слово як невідоме — додай його до масиву `words` у `.cspell.json`.
+**Український апостроф:** у словах не використовуй прямий символ `'` (U+0027); потрібен типографський апостроф ’ (U+2019). Якщо після цього cspell досі підсвічує слово як невідоме — додай його до масиву `words` у `.cspell.json`.
 
 ### Локальні виключення (cspell `words`)
 
@@ -278,6 +286,7 @@ cspell не має нативного `--fix`. Fix-режим **класифік
 **dotenv-linter** — швидкий лінтер для `.env`-файлів (перевіряє: LowercaseKey, DuplicatedKey, IncorrectDelimiter, UnorderedKey тощо). Інструмент має бути в **`PATH`** і **не** додається в `dependencies` / `devDependencies`.
 
 Якщо `dotenv-linter` відсутній — встанови локально:
+
 - **macOS:** `brew install dotenv-linter`
 - **Linux:** `curl -sSfL https://git.io/JLbXn | sh -s -- -b /usr/local/bin`
 - **cargo:** `cargo install dotenv-linter`
@@ -299,6 +308,7 @@ Prettier **повністю заборонено** — форматування 
 Перевірка `npx @nitra/cursor fix text` падає, якщо у корені є `.prettierignore`, `.prettierrc*`, `prettier.config.*` або у `package.json#scripts` зустрічається команда з `prettier`.
 
 Заборонені файли конфігурації Prettier у корені:
+
 - `.prettierignore`, `.prettierrc`, `.prettierrc.json`, `.prettierrc.jsonc`, `.prettierrc.json5`
 - `.prettierrc.yaml`, `.prettierrc.yml`, `.prettierrc.toml`
 - `.prettierrc.js`, `.prettierrc.cjs`, `.prettierrc.mjs`, `.prettierrc.ts`, `.prettierrc.cts`, `.prettierrc.mts`
@@ -379,6 +389,7 @@ Prettier **повністю заборонено** — форматування 
 ```
 
 **Заборонено** у `dependencies` / `devDependencies`:
+
 - `prettier`, `@nitra/prettier-config` — Prettier повністю заборонено
 - `markdownlint-cli2` — запускається через `bunx markdownlint-cli2`
 - окремі `@cspell/dict-*` пакети — входять транзитивно через `@nitra/cspell-dict`
@@ -398,6 +409,7 @@ kebab-case
 **shellcheck** — інструмент лише в **`PATH`**, **не** додавай до `dependencies` / `devDependencies`. VSCode-розширення: `timonwong.shellcheck`.
 
 Якщо `shellcheck` відсутній — встанови локально:
+
 - **macOS:** `brew install shellcheck`
 - **Debian/Ubuntu:** `sudo apt-get install -y shellcheck`
 - **Arch:** `sudo pacman -S shellcheck`
@@ -539,6 +551,7 @@ Rego-пакет: `text.cspell`
 **Приклади:**
 
 ✓ правильно:
+
 ```json
 {
   "version": "0.2",
@@ -549,6 +562,7 @@ Rego-пакет: `text.cspell`
 ```
 
 ✗ неправильно:
+
 ```json
 {
   "version": "0.1",
@@ -556,6 +570,7 @@ Rego-пакет: `text.cspell`
   "ignorePaths": []
 }
 ```
+
 (відсутнє `language`, застарілий `version`, заборонений `@cspell/dict-`, не всі canonical `ignorePaths`)
 
 ## Перевірка `.github/workflows/lint-text.yml` — структура CI-workflow
@@ -594,6 +609,7 @@ Rego-пакет: `text.markdownlint`
 **Приклади:**
 
 ✓ правильно:
+
 ```jsonc
 {
   "gitignore": true,
@@ -608,6 +624,7 @@ Rego-пакет: `text.markdownlint`
 ```
 
 ✗ неправильно:
+
 ```jsonc
 {
   "gitignore": false,
@@ -647,6 +664,7 @@ Rego-пакет: `text.package_json`
 **Приклади:**
 
 ✓ правильно:
+
 ```json
 {
   "devDependencies": { "@nitra/cspell-dict": "^2.0.0" },
@@ -655,6 +673,7 @@ Rego-пакет: `text.package_json`
 ```
 
 ✗ неправильно:
+
 ```json
 {
   "prettier": "@nitra/prettier-config",

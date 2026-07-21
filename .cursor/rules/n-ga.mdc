@@ -6,11 +6,13 @@ alwaysApply: false
 ---
 
 Правило **ga** перевіряє структуру `.github/workflows/`, наявність обов'язкових workflow-файлів і їх відповідність канонам, а також налаштування VS Code та zizmor для роботи з GitHub Actions.
+
 - `settings.json`:
 
 ```json
 { "[github-actions-workflow]": { "editor.defaultFormatter": "oxc.oxc-vscode" } }
 ```
+
 - `git-ai.yml`:
 
 ```yaml
@@ -45,6 +47,7 @@ jobs:
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git-ai ci github run
 ```
+
 - `clean-ga-workflows.yml`:
 
 ```yaml
@@ -75,6 +78,7 @@ jobs:
           save_period: 31
           save_min_runs_number: 0
 ```
+
 - `lint-ga.yml`:
 
 ```yaml
@@ -120,6 +124,7 @@ jobs:
       - name: Lint GA
         run: n-cursor lint ga --read-only
 ```
+
 - `zizmor.yml`:
 
 ```yaml
@@ -129,6 +134,7 @@ rules:
       policies:
         '*': ref-pin
 ```
+
 - `clean-merged-branch.yml`:
 
 ```yaml
@@ -170,11 +176,13 @@ jobs:
         run: |
           echo "Deleted branches: ${DELETED_BRANCHES}"
 ```
+
 - `extensions.json`:
 
 ```json
 { "recommendations": ["github.vscode-github-actions"] }
 ```
+
 - `uses-min-versions`:
 
 ```json
@@ -392,6 +400,7 @@ SHA-pin (40 hex) semver-політику не застосовує. Для check
 `actionlint` (через `bunx github-actionlint`) запускає shell-перевірки в кроках `run:` лише коли `shellcheck` доступний у PATH — інакше мовчки пропускає SC-правила. Локальний `bun lint-ga` лишається зеленим, а CI на `ubuntu-latest` (де shellcheck передвстановлений) падає.
 
 Встанови `shellcheck`:
+
 - macOS: `brew install shellcheck`
 - Debian/Ubuntu: `sudo apt-get install -y shellcheck`
 - Arch: `sudo pacman -S shellcheck`

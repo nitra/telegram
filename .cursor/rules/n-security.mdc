@@ -6,9 +6,11 @@ version: '2.1'
 ---
 
 Правило **security** забезпечує сканування секретів через [TruffleHog](https://github.com/trufflesecurity/trufflehog) локально та на CI, а також правильне використання placeholder-значень у прикладних файлах.
+
 ## Перевірка
 
 `npx @nitra/cursor fix security`
+
 - `lint-security.yml`:
 
 ```yaml
@@ -44,6 +46,7 @@ jobs:
         with:
           extra_args: --results=verified,unknown
 ```
+
 - `package.json`:
 
 ```json
@@ -85,6 +88,7 @@ Workflow `.github/workflows/lint-security.yml` обовʼязковий — за
 Перевіряється лише `secret` у позиції значення (після `=`, `:`, `=>`); імена ключів на кшталт `client_secret` не чіпаються.
 
 Concern `security.sample_secret` (`js/sample_secret.mjs`) сканує всі прикладні файли:
+
 - суфікс basename'а: `.example`, `.sample`, `.template`, `.dist`
 - інфікс у basename'і: `.example.`, `.sample.`, `.template.`
 - сегмент шляху: `fixtures/`, `fixture/`, `__fixtures__/`
