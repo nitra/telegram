@@ -14,7 +14,7 @@
     "@nitra/cspell-dict": "^1.0.179",
     "@nitra/eslint-config": "^3.0.11",
     "@nitra/prettier-config": "^1.0.1",
-    "@7n/rules": "^12.19.0"
+    "@7n/rules": "^1.38.0"
   },
   "prettier": "@nitra/prettier-config",
   "eslintConfig": {
